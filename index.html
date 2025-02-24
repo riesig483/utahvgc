@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Team Sprites</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .team { display: flex; flex-wrap: wrap; justify-content: center; margin-bottom: 30px; }
+        .pokemon { margin: 10px; text-align: center; }
+        img { width: 100px; height: auto; }
+    </style>
+</head>
+<body>
+
+    <h1>Pokémon Team Sprites</h1>
+    <div id="teams"></div>
+
+    <script>
+        const sheetID = "1qsxt3ielJJxl5da1ZE7dp4GWFdS-bjw_fG8SamTtZwY";
+        const apiURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
+
+        async function fetchTeams() {
+            try {
+                const response = await fetch(apiURL);
+                const text = await response.text();
+                const json = JSON.parse(text.substr(47).slice(0, -2));
+                const rows = json.table.rows;
+
+                let teamsHTML = "";
+
+                rows.slice(1).forEach(row => {
+                    const teamName = row.c[0]?.v || "Unknown Team";
+                    const pokemon = row.c.slice(1, 7).map(cell => cell?.v);
+                    const items = row.c.slice(7, 13).map(cell => cell?.v);
+
+                    let teamHTML = `<h2>${teamName}</h2><div class="team">`;
+
+                    for (let i = 0; i < 6; i++) {
+                        const pokemonName = pokemon[i] ? pokemon[i].toLowerCase().replace(" ", "-") : null;
+                        const itemName = items[i] ? items[i].toLowerCase().replace(" ", "-") : null;
+
+                        if (pokemonName) {
+                            const pokemonSprite = `https://img.pokemondb.net/sprites/home/normal/${pokemonName}.png`;
+                            teamHTML += `
+                                <div class="pokemon">
+                                    <img src="${pokemonSprite}" alt="${pokemon[i]}">
+                                    <p>${pokemon[i]}</p>
+                                </div>
+                            `;
+                        }
+
+                        if (itemName) {
+                            const itemSprite = `https://play.pokemonshowdown.com/sprites/itemicons/${itemName}.png`;
+                            teamHTML += `
+                                <div class="pokemon">
+                                    <img src="${itemSprite}" alt="${items[i]}">
+                                    <p>${items[i]}</p>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    teamHTML += `</div>`;
+                    teamsHTML += teamHTML;
+                });
+
+                document.getElementById("teams").innerHTML = teamsHTML;
+
+            } catch (error) {
+                console.error("Error fetching teams:", error);
+                document.getElementById("teams").innerHTML = `<p>Error loading teams.</p>`;
+            }
+        }
+
+        fetchTeams();
+    </script>
+
+</body>
+</html>
