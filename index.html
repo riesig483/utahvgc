@@ -1,80 +1,280 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokémon Team Sprites</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        .team { display: flex; flex-wrap: wrap; justify-content: center; margin-bottom: 30px; }
-        .pokemon { margin: 10px; text-align: center; }
-        img { width: 100px; height: auto; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Utah VGC &middot; Team Graphic Generator</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%231a2a3a' stroke='%23f4a13a' stroke-width='6'/%3E%3Ccircle cx='50' cy='50' r='22' fill='%23f4a13a'/%3E%3Ccircle cx='50' cy='50' r='9' fill='%231a2a3a'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <h1>Pokémon Team Sprites</h1>
-    <div id="teams"></div>
+<header class="app-header">
+  <h1>Utah VGC Team Graphic Generator</h1>
+  <div class="app-header-actions">
+    <button id="btn-new" class="btn btn-ghost" title="Clear the form and start a new graphic">New</button>
+    <button id="btn-drafts" class="btn btn-ghost" title="Save the current graphic or reopen a saved one">Drafts&hellip;</button>
+    <button id="btn-settings" class="btn btn-ghost" title="Upload logos/background and edit constant branding">Branding&hellip;</button>
+    <button id="btn-export" class="btn btn-primary" title="Export the graphic as a PNG image">Export PNG</button>
+  </div>
+</header>
 
-    <script>
-        const sheetID = "1qsxt3ielJJxl5da1ZE7dp4GWFdS-bjw_fG8SamTtZwY";
-        const apiURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
+<main class="app-body">
 
-        async function fetchTeams() {
-            try {
-                const response = await fetch(apiURL);
-                const text = await response.text();
-                const json = JSON.parse(text.substr(47).slice(0, -2));
-                const rows = json.table.rows;
+  <!-- ============================ INPUT FORM ============================ -->
+  <section class="panel form-panel" aria-label="Graphic inputs">
 
-                let teamsHTML = "";
+    <div class="field-group">
+      <h2>Event details</h2>
+      <label class="field">
+        <span>Tournament type</span>
+        <select id="f-tourney-type"></select>
+      </label>
+      <label class="field" id="f-custom-title-wrap" hidden>
+        <span>Custom title</span>
+        <input type="text" id="f-custom-title" placeholder="e.g. Regulation Rumble">
+      </label>
+      <label class="field" id="f-custom-subtitle-wrap" hidden>
+        <span>Custom subtitle</span>
+        <input type="text" id="f-custom-subtitle" placeholder="e.g. Reg H">
+      </label>
+      <label class="field">
+        <span>Date</span>
+        <input type="date" id="f-date">
+      </label>
+      <label class="field">
+        <span>Hosting game store</span>
+        <select id="f-store"></select>
+      </label>
+      <label class="field" id="f-store-custom-wrap" hidden>
+        <span>Store name</span>
+        <input type="text" id="f-store-custom" placeholder="e.g. Game Grid">
+      </label>
+      <label class="field">
+        <span>Store location</span>
+        <input type="text" id="f-store-location" placeholder="e.g. Saratoga Springs">
+      </label>
+      <label class="field">
+        <span>Organized by</span>
+        <input type="text" id="f-organizer" placeholder="e.g. Ethan Grant">
+      </label>
+    </div>
 
-                rows.slice(1).forEach(row => {
-                    const teamName = row.c[0]?.v || "Unknown Team";
-                    const pokemon = row.c.slice(1, 7).map(cell => cell?.v);
-                    const items = row.c.slice(7, 13).map(cell => cell?.v);
+    <div class="field-group" id="places-editor">
+      <h2>Standings</h2>
+      <!-- place cards injected by JS -->
+    </div>
 
-                    let teamHTML = `<h2>${teamName}</h2><div class="team">`;
+  </section>
 
-                    for (let i = 0; i < 6; i++) {
-                        const pokemonName = pokemon[i] ? pokemon[i].toLowerCase().replace(" ", "-") : null;
-                        const itemName = items[i] ? items[i].toLowerCase().replace(" ", "-") : null;
+  <!-- ============================== PREVIEW ============================== -->
+  <section class="panel preview-panel" aria-label="Graphic preview">
+    <div class="preview-scale-wrap" id="preview-scale-wrap">
+      <div class="graphic" id="graphic">
 
-                        if (pokemonName) {
-                            const pokemonSprite = `https://img.pokemondb.net/sprites/home/normal/${pokemonName}.png`;
-                            teamHTML += `
-                                <div class="pokemon">
-                                    <img src="${pokemonSprite}" alt="${pokemon[i]}">
-                                    <p>${pokemon[i]}</p>
-                                </div>
-                            `;
-                        }
+        <div class="g-header">
+          <div class="g-header-contact">
+            <div class="g-contact-row"><span class="g-icon">🗓️</span><span id="g-date">July 29, 2025</span></div>
+            <div class="g-contact-row"><span class="g-icon">𝕏</span><span id="g-twitter">@Utah_VGC</span></div>
+            <div class="g-contact-row"><span class="g-icon">🌐</span><span id="g-website">utahvgc.com</span></div>
+            <div class="g-contact-row"><span class="g-icon">✉️</span><span id="g-email">UtahVGC@gmail.com</span></div>
+          </div>
+          <div class="g-header-title" id="g-header-title">
+            <img id="g-tourney-logo" class="g-tourney-logo" alt="" hidden>
+            <div id="g-custom-title-block" class="g-custom-title-block" hidden>
+              <div class="g-custom-title" id="g-custom-title"></div>
+              <div class="g-custom-subtitle" id="g-custom-subtitle"></div>
+            </div>
+          </div>
+          <div class="g-header-orglogo">
+            <img id="g-org-logo" alt="Organization logo">
+          </div>
+        </div>
 
-                        if (itemName) {
-                            const itemSprite = `https://play.pokemonshowdown.com/sprites/itemicons/${itemName}.png`;
-                            teamHTML += `
-                                <div class="pokemon">
-                                    <img src="${itemSprite}" alt="${items[i]}">
-                                    <p>${items[i]}</p>
-                                </div>
-                            `;
-                        }
-                    }
+        <div class="g-placements" id="g-placements">
+          <!-- 4 place cards injected by JS -->
+        </div>
 
-                    teamHTML += `</div>`;
-                    teamsHTML += teamHTML;
-                });
+        <div class="g-hosted-by">
+          <div class="g-hosted-by-label">Hosted by</div>
+          <img id="g-store-logo" class="g-store-logo" alt="">
+          <div class="g-store-name-fallback" id="g-store-name-fallback" hidden></div>
+          <div class="g-store-location" id="g-store-location"></div>
+        </div>
 
-                document.getElementById("teams").innerHTML = teamsHTML;
+        <div class="g-footer">
+          <div class="g-footer-credits" id="g-footer-credits"></div>
+          <div class="g-footer-organizer" id="g-footer-organizer"></div>
+        </div>
 
-            } catch (error) {
-                console.error("Error fetching teams:", error);
-                document.getElementById("teams").innerHTML = `<p>Error loading teams.</p>`;
-            }
-        }
+      </div>
+    </div>
+    <div class="preview-controls">
+      <label>Zoom
+        <input type="range" id="preview-zoom" min="30" max="100" value="55">
+      </label>
+      <span id="sprite-warning" class="sprite-warning" hidden>&#9888; Some sprites failed to load &mdash; check your connection or fix the name/URL.</span>
+    </div>
+  </section>
 
-        fetchTeams();
-    </script>
+</main>
 
+<!-- ============================== TEMPLATES ============================== -->
+
+<template id="tpl-place-card-form">
+  <fieldset class="place-form-card">
+    <legend class="place-form-legend"></legend>
+    <div class="place-form-row">
+      <label class="field">
+        <span>Player name</span>
+        <input type="text" class="p-name" placeholder="Player name">
+      </label>
+      <label class="field">
+        <span>Twitter / X handle</span>
+        <input type="text" class="p-handle" placeholder="@handle (optional)">
+      </label>
+    </div>
+    <div class="p-team-slots"></div>
+  </fieldset>
+</template>
+
+<template id="tpl-team-slot">
+  <div class="slot-form">
+    <label class="field slot-field">
+      <span class="slot-label"></span>
+      <input type="text" class="slot-pokemon" list="dl-pokemon" placeholder="Pok&eacute;mon" autocomplete="off">
+    </label>
+    <label class="field slot-field">
+      <span>&nbsp;</span>
+      <input type="text" class="slot-item" list="dl-items" placeholder="Held item (optional)" autocomplete="off">
+    </label>
+  </div>
+</template>
+
+<template id="tpl-place-card-graphic">
+  <div class="place-card">
+    <div class="place-card-topline">
+      <span class="place-rank"></span>
+      <div class="place-namebar">
+        <span class="place-player"></span>
+        <span class="place-handle"></span>
+      </div>
+    </div>
+    <div class="place-team"></div>
+  </div>
+</template>
+
+<template id="tpl-team-slot-graphic">
+  <div class="g-slot">
+    <img class="g-pokemon-sprite" alt="">
+    <img class="g-item-sprite" alt="">
+  </div>
+</template>
+
+<!-- ============================== DIALOGS ============================== -->
+
+<dialog id="dlg-drafts">
+  <h2>Drafts &amp; export history</h2>
+  <div class="dlg-tabs">
+    <button class="dlg-tab active" data-tab="drafts">Saved drafts</button>
+    <button class="dlg-tab" data-tab="history">Export history</button>
+  </div>
+  <div class="dlg-tab-panel" data-panel="drafts">
+    <div class="dlg-actions-row">
+      <button id="btn-save-draft" class="btn btn-primary">Save current as new draft</button>
+      <button id="btn-import-json" class="btn btn-ghost">Import JSON&hellip;</button>
+      <input type="file" id="file-import-json" accept="application/json" hidden>
+    </div>
+    <ul class="dlg-list" id="list-drafts"></ul>
+  </div>
+  <div class="dlg-tab-panel" data-panel="history" hidden>
+    <p class="dlg-hint">Every graphic you export is logged here so you can reopen and tweak it later.</p>
+    <ul class="dlg-list" id="list-history"></ul>
+  </div>
+  <div class="dlg-close-row"><button class="btn" id="btn-close-drafts">Close</button></div>
+</dialog>
+
+<dialog id="dlg-settings">
+  <h2>Branding &amp; assets</h2>
+  <p class="dlg-hint">These stay constant across graphics and are saved in this browser. Upload your real logo/background files here once so every export matches your template exactly.</p>
+
+  <div class="settings-grid">
+    <div class="settings-field">
+      <span>Background image</span>
+      <input type="file" accept="image/*" id="up-background">
+      <button class="btn btn-ghost btn-sm" data-clear="background">Reset to default</button>
+    </div>
+    <div class="settings-field">
+      <span>Organization logo (top right)</span>
+      <input type="file" accept="image/*" id="up-org-logo">
+      <button class="btn btn-ghost btn-sm" data-clear="orgLogo">Reset to default</button>
+    </div>
+  </div>
+
+  <h3>Tournament type logos</h3>
+  <p class="dlg-hint">Pick a type in the form to upload its logo. Types with no uploaded logo fall back to plain text.</p>
+  <div class="settings-field">
+    <select id="settings-tourney-type-select"></select>
+    <input type="file" accept="image/*" id="up-tourney-logo">
+    <button class="btn btn-ghost btn-sm" data-clear="tourneyLogo">Remove</button>
+  </div>
+
+  <h3>Game store logos</h3>
+  <div class="settings-field">
+    <select id="settings-store-select"></select>
+    <input type="file" accept="image/*" id="up-store-logo">
+    <button class="btn btn-ghost btn-sm" data-clear="storeLogo">Remove</button>
+  </div>
+  <div class="settings-field">
+    <input type="text" id="new-store-name" placeholder="New store name">
+    <button class="btn btn-ghost btn-sm" id="btn-add-store">+ Add store</button>
+  </div>
+
+  <h3>Contact info &amp; credits</h3>
+  <div class="settings-grid">
+    <label class="field"><span>Twitter / X handle</span><input type="text" id="s-twitter"></label>
+    <label class="field"><span>Website</span><input type="text" id="s-website"></label>
+    <label class="field"><span>Email</span><input type="text" id="s-email"></label>
+    <label class="field"><span>Footer credits (line 1)</span><input type="text" id="s-credit1"></label>
+    <label class="field"><span>Footer credits (line 2)</span><input type="text" id="s-credit2"></label>
+  </div>
+
+  <div class="dlg-close-row"><button class="btn btn-primary" id="btn-close-settings">Done</button></div>
+</dialog>
+
+<dialog id="dlg-export">
+  <h2>Export graphic</h2>
+  <label class="field">
+    <span>Resolution</span>
+    <select id="export-scale">
+      <option value="1">1&times; (2000&times;1125 &mdash; fast)</option>
+      <option value="2" selected>2&times; (4000&times;2250 &mdash; recommended for Twitter/X)</option>
+      <option value="3">3&times; (6000&times;3375 &mdash; max quality)</option>
+    </select>
+  </label>
+  <div id="export-status" class="dlg-hint"></div>
+  <div class="dlg-close-row">
+    <button class="btn" id="btn-cancel-export">Cancel</button>
+    <button class="btn btn-primary" id="btn-run-export">Download PNG</button>
+  </div>
+</dialog>
+
+<datalist id="dl-pokemon"></datalist>
+<datalist id="dl-items"></datalist>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="vendor/html2canvas.min.js"></script>
+<script src="js/data/pokemon.js"></script>
+<script src="js/data/items.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/catalog.js"></script>
+<script src="js/state.js"></script>
+<script src="js/render.js"></script>
+<script src="js/form.js"></script>
+<script src="js/drafts.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/export.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
