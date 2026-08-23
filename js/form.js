@@ -156,13 +156,20 @@ function buildPlacesEditor() {
       slotNode.querySelector('.slot-label').textContent = `Pokémon ${slotIdx + 1}`;
 
       const pInput = slotNode.querySelector('.slot-pokemon');
+      const iInput = slotNode.querySelector('.slot-item');
       pInput.value = slot.pokemon;
       pInput.addEventListener('input', e => {
         state.places[placeIdx].team[slotIdx].pokemon = e.target.value;
+        // Mega Evolutions can only hold their one matching Mega Stone, so
+        // picking one auto-fills (and overwrites) the item field with it.
+        const stone = megaStoneFor(e.target.value);
+        if (stone) {
+          state.places[placeIdx].team[slotIdx].item = stone;
+          iInput.value = stone;
+        }
         scheduleRender();
       });
 
-      const iInput = slotNode.querySelector('.slot-item');
       iInput.value = slot.item;
       iInput.addEventListener('input', e => {
         state.places[placeIdx].team[slotIdx].item = e.target.value;

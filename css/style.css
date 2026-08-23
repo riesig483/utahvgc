@@ -263,7 +263,7 @@ html, body {
 }
 
 .g-footer { position: absolute; inset: 0; font-size: 28px; }
-.g-footer-credits { position: absolute; left: 0; bottom: 0; width: 846px; line-height: 1.35; }
+.g-footer-credits { position: absolute; left: 30px; bottom: 0; width: 846px; line-height: 1.35; }
 .g-footer-organizer { position: absolute; right: 30px; bottom: 0; width: 400px; text-align: right; }
 
 /* ---------------------------------- Dialogs ---------------------------------- */

@@ -37,9 +37,11 @@ everything in **Branding…**:
   Challenge, League Cup, Regional Championship, Global Challenge
 - `assets/stores/game-grid.png` — the Game Grid store logo
 
-**World Championship has no logo yet** — the deck didn't include one, so
-that tournament type falls back to plain text until you upload it in
-**Branding…** (*reminder, as requested*).
+**World Championship and International Championship have no bundled logo
+yet** — both fall back to plain text until uploaded in **Branding…** (the
+Worlds one shared in chat was a pasted image, not a file attachment, so I
+couldn't pull real bytes from it — re-upload both as file attachments and
+I'll bundle them as defaults).
 
 Uploading a file in **Branding…** stores a data-URL override in
 `localStorage` on top of these bundled defaults (per tournament type / per
@@ -86,6 +88,16 @@ Both Pokémon and item boxes are fixed-size (`object-fit: contain`), so every
 Pokémon sprite is the same size as every other Pokémon sprite, and likewise
 for items, regardless of the source image's native dimensions.
 
+**Mega Stones auto-fill.** Champions gives 75 Pokémon a Mega Evolution
+(including several that never had one in the mainline games, like Chesnaught
+and Greninja), each with exactly one valid held item. Picking a Mega in the
+Pokémon box (e.g. "Charizard (Mega X)") automatically fills its item box
+with the matching stone ("Charizardite X"), overwriting whatever was there.
+`js/data/mega-stones.js` is a real {Pokémon name → stone name} map built by
+matching the two scraped lists against each other, not a guessed suffix
+rule (Champions' irregular stone names — Blastoisinite, Feraligite,
+Scraftinite, etc. — don't follow one consistent pattern).
+
 **If a Pokémon/item isn't in the Champions roster**, or you just want to
 point at a different image: paste a direct image URL into the box instead
 of a name. The app detects `http(s)://` input and uses it verbatim, no code
@@ -124,7 +136,8 @@ assets/              Real brand assets extracted from the template deck (backgro
                      org logo, contact icons, tournament-type logos, store logos)
 js/data/pokemon.js    Scraped Champions species+form list: {name, sprite url}
 js/data/items.js      Scraped Champions item list: {name, sprite url}
-js/sprites.js         Name → sprite URL lookup (+ direct-URL override)
+js/data/mega-stones.js Mega Pokemon → its Mega Stone item name
+js/sprites.js         Name → sprite URL lookup (+ direct-URL override, + Mega Stone lookup)
 js/catalog.js         Tournament-type/store lists + their default (bundled) logos
 js/state.js           State shape + all localStorage read/write helpers
 js/render.js           Renders state+settings into the .graphic preview DOM

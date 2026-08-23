@@ -11,8 +11,10 @@ const TOURNEY_TYPES = [
   { id: 'league-challenge', name: 'League Challenge' },
   { id: 'league-cup', name: 'League Cup' },
   { id: 'regional-championship', name: 'Regional Championship' },
+  { id: 'international-championship', name: 'International Championship' }, // logo not supplied yet -- falls back to text until uploaded in Branding…
   { id: 'global-challenge', name: 'Global Challenge (online)' },
   { id: 'worlds', name: 'World Championship' }, // logo not supplied yet -- falls back to text until uploaded in Branding…
+  { id: 'friendly', name: 'Friendly' },
   { id: 'custom', name: 'Custom title…' },
 ];
 

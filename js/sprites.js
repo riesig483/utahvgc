@@ -59,6 +59,19 @@ function findPokemon(name) {
   return null;
 }
 
+/**
+ * If `name` resolves to a Mega Evolution, returns that Mega's held item
+ * (its Mega Stone) -- e.g. "Charizard (Mega X)" -> "Charizardite X". Built
+ * from the real scraped Pokemon/item lists (js/data/mega-stones.js), not a
+ * guessed suffix rule, since Champions gives many Pokemon Mega Stones that
+ * never existed in the mainline games.
+ */
+function megaStoneFor(name) {
+  const p = findPokemon(name);
+  if (!p) return null;
+  return window.MEGA_STONE_MAP[p.name] || null;
+}
+
 function findItem(name) {
   const key = normalizeKey(name);
   if (!key) return null;
