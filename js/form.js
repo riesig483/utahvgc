@@ -10,10 +10,14 @@ function scheduleRender() {
   renderTimer = setTimeout(() => renderGraphic(state, settings), 30);
 }
 
+function byName(a, b) {
+  return a.name.localeCompare(b.name);
+}
+
 function populateDatalists() {
   const pokeList = document.getElementById('dl-pokemon');
   const frag = document.createDocumentFragment();
-  for (const p of window.POKEMON_DATA) {
+  for (const p of [...window.POKEMON_DATA].sort(byName)) {
     const opt = document.createElement('option');
     opt.value = p.name;
     frag.appendChild(opt);
@@ -22,7 +26,7 @@ function populateDatalists() {
 
   const itemList = document.getElementById('dl-items');
   const frag2 = document.createDocumentFragment();
-  for (const i of window.ITEM_DATA) {
+  for (const i of [...window.ITEM_DATA].sort(byName)) {
     const opt = document.createElement('option');
     opt.value = i.name;
     frag2.appendChild(opt);
@@ -31,9 +35,13 @@ function populateDatalists() {
 }
 
 function populateTourneyTypeSelects() {
+  // Alphabetical, but "Custom title…" always trails -- it's a catch-all,
+  // not a named tournament type, so it reads oddly interspersed.
+  const sorted = TOURNEY_TYPES.filter(t => t.id !== 'custom').sort(byName);
+  const custom = TOURNEY_TYPES.find(t => t.id === 'custom');
   for (const sel of [document.getElementById('f-tourney-type'), document.getElementById('settings-tourney-type-select')]) {
     sel.innerHTML = '';
-    for (const t of TOURNEY_TYPES) {
+    for (const t of [...sorted, custom]) {
       const opt = document.createElement('option');
       opt.value = t.id;
       opt.textContent = t.name;
@@ -45,15 +53,17 @@ function populateTourneyTypeSelects() {
 function populateStoreSelects() {
   const main = document.getElementById('f-store');
   const settingsSel = document.getElementById('settings-store-select');
+  const sorted = [...settings.stores].sort(byName);
   for (const sel of [main, settingsSel]) {
     sel.innerHTML = '';
-    for (const s of settings.stores) {
+    for (const s of sorted) {
       const opt = document.createElement('option');
       opt.value = s.id;
       opt.textContent = s.name;
       sel.appendChild(opt);
     }
   }
+  // "Other / custom…" is a catch-all, not a saved store -- keep it trailing.
   const customOpt = document.createElement('option');
   customOpt.value = 'custom';
   customOpt.textContent = 'Other / custom…';
