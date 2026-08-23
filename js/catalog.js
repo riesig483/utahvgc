@@ -7,21 +7,29 @@
  * background / the org logo.
  */
 
+// Order here is the dropdown order: roughly smallest to largest event, with
+// Custom pinned at the end as the catch-all -- not alphabetical.
 const TOURNEY_TYPES = [
-  { id: 'league-challenge', name: 'League Challenge' },
-  { id: 'league-cup', name: 'League Cup' },
-  { id: 'regional-championship', name: 'Regional Championship' },
-  { id: 'international-championship', name: 'International Championship' },
-  { id: 'global-challenge', name: 'Global Challenge (online)' },
-  { id: 'worlds', name: 'World Championship' },
   { id: 'friendly', name: 'Friendly' },
+  { id: 'league-challenge', name: 'Challenge' },
+  { id: 'league-cup', name: 'Cup' },
+  { id: 'grand-challenge', name: 'Grand Challenge' },
+  { id: 'global-challenge', name: 'Global Challenge' },
+  { id: 'regional-championship', name: 'Regional' },
+  { id: 'international-championship', name: 'IC' },
+  { id: 'worlds', name: 'Worlds' },
   { id: 'custom', name: 'Custom title…' },
 ];
 
 /**
- * Logos: the first four came straight from the template deck's slides;
- * worlds/international-championship were supplied separately as file
- * attachments (Logos.pptx).
+ * Logos: league-challenge/league-cup/regional-championship/global-challenge
+ * came from the template deck's slides; worlds/international-championship
+ * were supplied separately as file attachments (Logos.pptx).
+ *
+ * grand-challenge has no logo of its own yet -- it intentionally shares
+ * global-challenge's file as a placeholder (per instruction) until a real
+ * one is supplied, so updating assets/logos/global-challenge.png updates
+ * both until then.
  */
 const DEFAULT_TOURNEY_LOGOS = {
   'league-challenge': 'assets/logos/league-challenge.png',
@@ -29,6 +37,7 @@ const DEFAULT_TOURNEY_LOGOS = {
   'regional-championship': 'assets/logos/regional-championship.png',
   'international-championship': 'assets/logos/international-championship.png',
   'global-challenge': 'assets/logos/global-challenge.png',
+  'grand-challenge': 'assets/logos/global-challenge.png',
   worlds: 'assets/logos/worlds.png',
 };
 
@@ -36,11 +45,17 @@ const DEFAULT_TOURNEY_LOGOS = {
  * Logo source files aren't all drawn at the same visual scale relative to
  * their canvas, so a single shared max-height makes some look smaller than
  * others even though the box itself is the same size. Override per type as
- * needed; anything not listed uses DEFAULT_LOGO_MAX_HEIGHT.
+ * needed; anything not listed uses DEFAULT_LOGO_HEIGHT.
+ *
+ * regional-championship's shield art fills ~92% of its canvas height vs.
+ * international-championship's ~100% (its canvas has no padding at all),
+ * so matching their *content* height -- not just the box height -- takes
+ * 190 * (international content-height-ratio / regional content-height-ratio)
+ * = 190 * (1.0 / 0.916) ≈ 206px.
  */
-const DEFAULT_LOGO_MAX_HEIGHT = 190;
-const TOURNEY_LOGO_MAX_HEIGHT = {
-  'regional-championship': 240,
+const DEFAULT_LOGO_HEIGHT = 190;
+const TOURNEY_LOGO_HEIGHT = {
+  'regional-championship': 206,
 };
 
 /**
@@ -50,9 +65,18 @@ const TOURNEY_LOGO_MAX_HEIGHT = {
  */
 const BIG_EVENT_TYPES = ['regional-championship', 'international-championship', 'worlds'];
 
-/** Default stores are just a starting point -- users can add their own in Branding. */
+/**
+ * Default stores are just a starting point -- users can add their own in
+ * Branding. game-haven/hastur-games/kayfabe-cards have no logo yet (their
+ * images came through as pasted chat images, not file attachments, so the
+ * real bytes weren't recoverable) -- they fall back to bold text until
+ * uploaded, same as Worlds/Internationals did before.
+ */
 const DEFAULT_STORES = [
   { id: 'game-grid', name: 'Game Grid' },
+  { id: 'game-haven', name: 'Game Haven' },
+  { id: 'hastur-games', name: 'Hastur Games' },
+  { id: 'kayfabe-cards', name: 'Kayfabe Cards' },
 ];
 
 const DEFAULT_STORE_LOGOS = {

@@ -43,7 +43,7 @@ function renderHeader(state, settings) {
   if (uploadedLogo) {
     logoImg.src = uploadedLogo;
     logoImg.hidden = false;
-    logoImg.style.maxHeight = (TOURNEY_LOGO_MAX_HEIGHT[state.tourneyType] || DEFAULT_LOGO_MAX_HEIGHT) + 'px';
+    logoImg.style.height = (TOURNEY_LOGO_HEIGHT[state.tourneyType] || DEFAULT_LOGO_HEIGHT) + 'px';
     customBlock.hidden = true;
   } else {
     logoImg.hidden = true;

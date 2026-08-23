@@ -193,7 +193,12 @@ html, body {
   position: absolute; left: 300px; right: 300px; top: 0; height: 220px;
   display: flex; align-items: center; justify-content: center; text-align: center;
 }
-.g-tourney-logo { max-height: 190px; max-width: 100%; object-fit: contain; }
+/* `height`, not `max-height`: several logo source files are small enough
+   natively (e.g. 142x142) that max-height would never scale them UP to
+   fill the box -- it only ever shrinks. `height` + object-fit:contain
+   scales every logo to the same target height regardless of native size,
+   and max-width still guards against a pathologically wide source. */
+.g-tourney-logo { height: 190px; width: auto; max-width: 100%; object-fit: contain; }
 .g-custom-title-block { display: flex; flex-direction: column; gap: 4px; }
 .g-custom-title, .g-custom-subtitle { font-size: 61px; line-height: 1.08; }
 

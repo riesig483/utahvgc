@@ -35,13 +35,11 @@ function populateDatalists() {
 }
 
 function populateTourneyTypeSelects() {
-  // Alphabetical, but "Custom title…" always trails -- it's a catch-all,
-  // not a named tournament type, so it reads oddly interspersed.
-  const sorted = TOURNEY_TYPES.filter(t => t.id !== 'custom').sort(byName);
-  const custom = TOURNEY_TYPES.find(t => t.id === 'custom');
+  // Not alphabetical -- TOURNEY_TYPES is already in the intended event-size
+  // order (see js/catalog.js), with Custom pinned at the end.
   for (const sel of [document.getElementById('f-tourney-type'), document.getElementById('settings-tourney-type-select')]) {
     sel.innerHTML = '';
-    for (const t of [...sorted, custom]) {
+    for (const t of TOURNEY_TYPES) {
       const opt = document.createElement('option');
       opt.value = t.id;
       opt.textContent = t.name;
