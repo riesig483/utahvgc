@@ -43,6 +43,7 @@ function renderHeader(state, settings) {
   if (uploadedLogo) {
     logoImg.src = uploadedLogo;
     logoImg.hidden = false;
+    logoImg.style.maxHeight = (TOURNEY_LOGO_MAX_HEIGHT[state.tourneyType] || DEFAULT_LOGO_MAX_HEIGHT) + 'px';
     customBlock.hidden = true;
   } else {
     logoImg.hidden = true;
@@ -94,6 +95,22 @@ function renderPlacements(state) {
 }
 
 function renderHostedBy(state, settings) {
+  const isBigEvent = BIG_EVENT_TYPES.includes(state.tourneyType);
+  document.getElementById('g-hosted-by').classList.toggle('big-event', isBigEvent);
+  document.getElementById('g-store-location').textContent = state.storeLocation || '';
+
+  const logoImg = document.getElementById('g-store-logo');
+  const fallback = document.getElementById('g-store-name-fallback');
+
+  // Regional/International/Worlds run above any single game store -- skip
+  // the "Hosted by" label and store logo entirely, just show the city
+  // (handled by the .big-event CSS + the location text set above).
+  if (isBigEvent) {
+    logoImg.hidden = true;
+    fallback.hidden = true;
+    return;
+  }
+
   const store = settings.stores.find(s => s.id === state.store);
   const isCustomStore = state.store === 'custom' || !store;
   const storeName = isCustomStore ? state.storeCustomName : (store ? store.name : '');
@@ -101,8 +118,6 @@ function renderHostedBy(state, settings) {
     ? (settings.storeLogos[store.id] || DEFAULT_STORE_LOGOS[store.id])
     : null;
 
-  const logoImg = document.getElementById('g-store-logo');
-  const fallback = document.getElementById('g-store-name-fallback');
   if (logo) {
     logoImg.src = logo;
     logoImg.hidden = false;
@@ -112,7 +127,6 @@ function renderHostedBy(state, settings) {
     fallback.hidden = false;
     fallback.textContent = storeName || '';
   }
-  document.getElementById('g-store-location').textContent = state.storeLocation || '';
 }
 
 function renderFooter(state, settings) {

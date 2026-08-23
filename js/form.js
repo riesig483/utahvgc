@@ -87,8 +87,11 @@ function updateConditionalFieldVisibility() {
   document.getElementById('f-custom-title-wrap').hidden = !isCustomTourney;
   document.getElementById('f-custom-subtitle-wrap').hidden = !isCustomTourney;
 
-  const isCustomStore = state.store === 'custom';
-  document.getElementById('f-store-custom-wrap').hidden = !isCustomStore;
+  const isBigEvent = BIG_EVENT_TYPES.includes(state.tourneyType);
+  document.getElementById('f-store-wrap').hidden = isBigEvent;
+  document.getElementById('f-store-custom-wrap').hidden = isBigEvent || state.store !== 'custom';
+  document.getElementById('f-store-location-label').textContent = isBigEvent ? 'City' : 'Store location';
+  document.getElementById('f-store-location').placeholder = isBigEvent ? 'e.g. Indianapolis' : 'e.g. Saratoga Springs';
 }
 
 function wireStaticFields() {

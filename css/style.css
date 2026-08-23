@@ -268,6 +268,14 @@ html, body {
   font-size: 44px; text-align: center;
 }
 
+/* Regional/International/Worlds run above any single game store: no
+   "Hosted by" label or store logo, just the event city, centered in the
+   space where the store section would otherwise sit. */
+.g-hosted-by.big-event .g-hosted-by-label { display: none; }
+.g-hosted-by.big-event .g-store-location {
+  top: 850px; height: 110px; font-size: 66px;
+}
+
 .g-footer { position: absolute; inset: 0; font-size: 28px; }
 .g-footer-credits { position: absolute; left: 30px; bottom: 0; width: 846px; line-height: 1.35; }
 .g-footer-organizer { position: absolute; right: 30px; bottom: 0; width: 400px; text-align: right; }

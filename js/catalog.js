@@ -32,6 +32,24 @@ const DEFAULT_TOURNEY_LOGOS = {
   worlds: 'assets/logos/worlds.png',
 };
 
+/**
+ * Logo source files aren't all drawn at the same visual scale relative to
+ * their canvas, so a single shared max-height makes some look smaller than
+ * others even though the box itself is the same size. Override per type as
+ * needed; anything not listed uses DEFAULT_LOGO_MAX_HEIGHT.
+ */
+const DEFAULT_LOGO_MAX_HEIGHT = 190;
+const TOURNEY_LOGO_MAX_HEIGHT = {
+  'regional-championship': 240,
+};
+
+/**
+ * These are run at a level above any single game store -- there's no store
+ * to pick, so the form swaps "Hosting game store" for a plain city field
+ * and the graphic drops the store logo/"Hosted by" label entirely.
+ */
+const BIG_EVENT_TYPES = ['regional-championship', 'international-championship', 'worlds'];
+
 /** Default stores are just a starting point -- users can add their own in Branding. */
 const DEFAULT_STORES = [
   { id: 'game-grid', name: 'Game Grid' },
