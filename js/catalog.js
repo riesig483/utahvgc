@@ -65,13 +65,7 @@ const TOURNEY_LOGO_HEIGHT = {
  */
 const BIG_EVENT_TYPES = ['regional-championship', 'international-championship', 'worlds'];
 
-/**
- * Default stores are just a starting point -- users can add their own in
- * Branding. game-haven/hastur-games/kayfabe-cards have no logo yet (their
- * images came through as pasted chat images, not file attachments, so the
- * real bytes weren't recoverable) -- they fall back to bold text until
- * uploaded, same as Worlds/Internationals did before.
- */
+/** Default stores are just a starting point -- users can add their own in Branding. */
 const DEFAULT_STORES = [
   { id: 'game-grid', name: 'Game Grid' },
   { id: 'game-haven', name: 'Game Haven' },
@@ -81,6 +75,9 @@ const DEFAULT_STORES = [
 
 const DEFAULT_STORE_LOGOS = {
   'game-grid': 'assets/stores/game-grid.png',
+  'game-haven': 'assets/stores/game-haven.png',
+  'hastur-games': 'assets/stores/hastur-games.png',
+  'kayfabe-cards': 'assets/stores/kayfabe-cards.png',
 };
 
 const DEFAULT_BACKGROUND = 'assets/background.png';
