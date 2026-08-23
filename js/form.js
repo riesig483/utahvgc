@@ -86,8 +86,11 @@ function updateConditionalFieldVisibility() {
   document.getElementById('f-custom-subtitle-wrap').hidden = !isCustomTourney;
 
   const isBigEvent = BIG_EVENT_TYPES.includes(state.tourneyType);
-  document.getElementById('f-store-wrap').hidden = isBigEvent;
-  document.getElementById('f-store-custom-wrap').hidden = isBigEvent || state.store !== 'custom';
+  const isOnlineEvent = ONLINE_EVENT_TYPES.includes(state.tourneyType);
+  const noStore = isBigEvent || isOnlineEvent;
+  document.getElementById('f-store-wrap').hidden = noStore;
+  document.getElementById('f-store-custom-wrap').hidden = noStore || state.store !== 'custom';
+  document.getElementById('f-store-location-wrap').hidden = isOnlineEvent;
   document.getElementById('f-store-location-label').textContent = isBigEvent ? 'City' : 'Store location';
   document.getElementById('f-store-location').placeholder = isBigEvent ? 'e.g. Indianapolis' : 'e.g. Saratoga Springs';
 }

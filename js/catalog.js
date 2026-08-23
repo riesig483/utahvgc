@@ -61,9 +61,18 @@ const TOURNEY_LOGO_HEIGHT = {
 /**
  * These are run at a level above any single game store -- there's no store
  * to pick, so the form swaps "Hosting game store" for a plain city field
- * and the graphic drops the store logo/"Hosted by" label entirely.
+ * and the graphic drops the store logo/"Hosted by" label entirely, showing
+ * just the city.
  */
 const BIG_EVENT_TYPES = ['regional-championship', 'international-championship', 'worlds'];
+
+/**
+ * These run entirely online -- no store AND no host city, so the whole
+ * "Hosting game store"/city row disappears from the form, and the graphic
+ * shows nothing in that section at all (matching the template deck's own
+ * Global Challenge slide, which has no store, city, or "Hosted by" label).
+ */
+const ONLINE_EVENT_TYPES = ['global-challenge', 'grand-challenge'];
 
 /** Default stores are just a starting point -- users can add their own in Branding. */
 const DEFAULT_STORES = [

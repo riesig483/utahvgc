@@ -97,11 +97,26 @@ function renderPlacements(state) {
 
 function renderHostedBy(state, settings) {
   const isBigEvent = BIG_EVENT_TYPES.includes(state.tourneyType);
+  const isOnlineEvent = ONLINE_EVENT_TYPES.includes(state.tourneyType);
   document.getElementById('g-hosted-by').classList.toggle('big-event', isBigEvent);
-  document.getElementById('g-store-location').textContent = state.storeLocation || '';
 
   const logoImg = document.getElementById('g-store-logo');
   const fallback = document.getElementById('g-store-name-fallback');
+  const locationEl = document.getElementById('g-store-location');
+
+  // Global/Grand Challenge run entirely online -- no store, no host city,
+  // so this whole section is empty (matching the template deck's own
+  // Global Challenge slide, which has no "Hosted by"/store/city at all).
+  if (isOnlineEvent) {
+    document.getElementById('g-hosted-by-label').hidden = true;
+    logoImg.hidden = true;
+    fallback.hidden = true;
+    locationEl.textContent = '';
+    return;
+  }
+  document.getElementById('g-hosted-by-label').hidden = false;
+
+  locationEl.textContent = state.storeLocation || '';
 
   // Regional/International/Worlds run above any single game store -- skip
   // the "Hosted by" label and store logo entirely, just show the city
