@@ -33,15 +33,11 @@ everything in **Branding…**:
 - `assets/background.png` — the real Salt Lake City skyline/gradient
 - `assets/org-logo.png` — the real circular Utah Pokémon VG Championships logo
 - `assets/icon-x.png`, `assets/icon-globe.png` — the header's contact-row icons
-- `assets/logos/*.png` — the tournament-type logos the deck showed: League
-  Challenge, League Cup, Regional Championship, Global Challenge
+- `assets/logos/*.png` — every tournament-type logo: League Challenge,
+  League Cup, Regional Championship, Global Challenge (all four from the
+  template deck), plus World Championship and International Championship
+  (supplied separately as file attachments in `Logos.pptx`)
 - `assets/stores/game-grid.png` — the Game Grid store logo
-
-**World Championship and International Championship have no bundled logo
-yet** — both fall back to plain text until uploaded in **Branding…** (the
-Worlds one shared in chat was a pasted image, not a file attachment, so I
-couldn't pull real bytes from it — re-upload both as file attachments and
-I'll bundle them as defaults).
 
 Uploading a file in **Branding…** stores a data-URL override in
 `localStorage` on top of these bundled defaults (per tournament type / per

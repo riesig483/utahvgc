@@ -11,19 +11,25 @@ const TOURNEY_TYPES = [
   { id: 'league-challenge', name: 'League Challenge' },
   { id: 'league-cup', name: 'League Cup' },
   { id: 'regional-championship', name: 'Regional Championship' },
-  { id: 'international-championship', name: 'International Championship' }, // logo not supplied yet -- falls back to text until uploaded in Branding…
+  { id: 'international-championship', name: 'International Championship' },
   { id: 'global-challenge', name: 'Global Challenge (online)' },
-  { id: 'worlds', name: 'World Championship' }, // logo not supplied yet -- falls back to text until uploaded in Branding…
+  { id: 'worlds', name: 'World Championship' },
   { id: 'friendly', name: 'Friendly' },
   { id: 'custom', name: 'Custom title…' },
 ];
 
-/** Logos pulled straight from the template deck's slides -- one per type it actually showed. */
+/**
+ * Logos: the first four came straight from the template deck's slides;
+ * worlds/international-championship were supplied separately as file
+ * attachments (Logos.pptx).
+ */
 const DEFAULT_TOURNEY_LOGOS = {
   'league-challenge': 'assets/logos/league-challenge.png',
   'league-cup': 'assets/logos/league-cup.png',
   'regional-championship': 'assets/logos/regional-championship.png',
+  'international-championship': 'assets/logos/international-championship.png',
   'global-challenge': 'assets/logos/global-challenge.png',
+  worlds: 'assets/logos/worlds.png',
 };
 
 /** Default stores are just a starting point -- users can add their own in Branding. */
