@@ -11,13 +11,13 @@
 // Custom pinned at the end as the catch-all -- not alphabetical.
 const TOURNEY_TYPES = [
   { id: 'friendly', name: 'Friendly' },
-  { id: 'league-challenge', name: 'Challenge' },
-  { id: 'league-cup', name: 'Cup' },
+  { id: 'league-challenge', name: 'League Challenge' },
+  { id: 'league-cup', name: 'League Cup' },
   { id: 'grand-challenge', name: 'Grand Challenge' },
   { id: 'global-challenge', name: 'Global Challenge' },
-  { id: 'regional-championship', name: 'Regional' },
-  { id: 'international-championship', name: 'IC' },
-  { id: 'worlds', name: 'Worlds' },
+  { id: 'regional-championship', name: 'Regional Championship' },
+  { id: 'international-championship', name: 'International Championship' },
+  { id: 'worlds', name: 'World Championship' },
   { id: 'custom', name: 'Custom title…' },
 ];
 
@@ -52,10 +52,19 @@ const DEFAULT_TOURNEY_LOGOS = {
  * so matching their *content* height -- not just the box height -- takes
  * 190 * (international content-height-ratio / regional content-height-ratio)
  * = 190 * (1.0 / 0.916) ≈ 206px.
+ *
+ * The three big-event types (regional/international/worlds) run their
+ * logo noticeably shorter than that ratio-matched size -- their header
+ * also carries the event city right underneath the logo (see
+ * BIG_EVENT_TYPES below), and the full-size logo left too little
+ * clearance before that text. Shrunk by ~25px, keeping the same relative
+ * size relationship between regional and the other two.
  */
 const DEFAULT_LOGO_HEIGHT = 190;
 const TOURNEY_LOGO_HEIGHT = {
-  'regional-championship': 206,
+  'regional-championship': 179,
+  'international-championship': 165,
+  worlds: 165,
 };
 
 /**
