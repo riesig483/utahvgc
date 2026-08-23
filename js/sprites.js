@@ -1,18 +1,22 @@
 /**
  * Sprite lookup helpers.
  *
- * Pokemon art comes from pokemondb.net's "home" render set and item icons
- * come from Pokemon Showdown's itemicons set -- both are hot-linked, exactly
- * like the original Apps Script tool did, so no image assets need to ship
- * with this app. Every sprite is displayed inside a fixed-size box with
- * object-fit:contain (see css/style.css), so Pokemon are always the same
- * size as each other and items are always the same size as each other, no
- * matter how the source images are sized.
+ * This app is scoped to the Pokemon Champions roster: `js/data/pokemon.js`
+ * and `js/data/items.js` each hold a curated {name, url} list scraped from
+ * Bulbagarden Archives' "Champions menu sprites" category and Pokebase's
+ * Pokemon Champions item list. Every entry stores its sprite's direct image
+ * URL (Bulbagarden file hashes and Pokebase asset IDs aren't derivable from
+ * a name, so there's no slug-building step here -- just a name -> URL map).
  *
- * If a name doesn't resolve to sprite data, or the auto-generated slug is
- * wrong for some obscure form, the user can just paste a direct image URL
- * into the same input box instead of a name -- isImageUrl() below detects
- * that and the raw URL is used verbatim.
+ * Every sprite is displayed inside a fixed-size box with object-fit:contain
+ * (see css/style.css), so Pokemon are always the same size as each other
+ * and items are always the same size as each other, no matter how the
+ * source images are sized.
+ *
+ * If a name doesn't resolve (a typo, or a Pokemon/item not in the Champions
+ * roster), the user can just paste a direct image URL into the same input
+ * box instead of a name -- isImageUrl() below detects that and the raw URL
+ * is used verbatim.
  */
 
 const POKEMON_BY_KEY = new Map();
@@ -33,6 +37,11 @@ function normalizeKey(str) {
     .replace(/\s+/g, ' ');
 }
 
+/** Strips everything but letters/digits, for a loose "did they mean this" fallback match. */
+function collapseKey(str) {
+  return normalizeKey(str).replace(/[^a-z0-9]/g, '');
+}
+
 function isImageUrl(value) {
   return /^(https?:)?\/\//i.test(String(value || '').trim());
 }
@@ -42,10 +51,10 @@ function findPokemon(name) {
   const key = normalizeKey(name);
   if (!key) return null;
   if (POKEMON_BY_KEY.has(key)) return POKEMON_BY_KEY.get(key);
-  // Loose fallback: also try turning "raichu alolan" <-> "alolan raichu" etc.
-  const collapsed = key.replace(/[\s-]/g, '');
+  // Loose fallback: e.g. "Charizard Mega X" <-> "Charizard (Mega X)".
+  const collapsed = collapseKey(name);
   for (const p of window.POKEMON_DATA) {
-    if (normalizeKey(p.name).replace(/[\s-]/g, '') === collapsed) return p;
+    if (collapseKey(p.name) === collapsed) return p;
   }
   return null;
 }
@@ -54,6 +63,10 @@ function findItem(name) {
   const key = normalizeKey(name);
   if (!key) return null;
   if (ITEM_BY_KEY.has(key)) return ITEM_BY_KEY.get(key);
+  const collapsed = collapseKey(name);
+  for (const i of window.ITEM_DATA) {
+    if (collapseKey(i.name) === collapsed) return i;
+  }
   return null;
 }
 
@@ -62,8 +75,7 @@ function pokemonSpriteUrl(name) {
   if (!raw) return '';
   if (isImageUrl(raw)) return raw;
   const p = findPokemon(raw);
-  if (!p) return '';
-  return `https://img.pokemondb.net/sprites/home/normal/${p.slug}.png`;
+  return p ? p.url : '';
 }
 
 function itemSpriteUrl(name) {
@@ -71,6 +83,5 @@ function itemSpriteUrl(name) {
   if (!raw) return '';
   if (isImageUrl(raw)) return raw;
   const i = findItem(raw);
-  if (!i) return '';
-  return `https://play.pokemonshowdown.com/sprites/itemicons/${i.slug}.png`;
+  return i ? i.url : '';
 }
