@@ -66,6 +66,7 @@ function formatDateForGraphic(iso) {
 
 function renderPlacements(state) {
   const container = document.getElementById('g-placements');
+  container.classList.toggle('big-event', BIG_EVENT_TYPES.includes(state.tourneyType));
   container.innerHTML = '';
   const tpl = document.getElementById('tpl-place-card-graphic');
   const slotTpl = document.getElementById('tpl-team-slot-graphic');

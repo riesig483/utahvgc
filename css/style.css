@@ -274,12 +274,17 @@ html, body {
 }
 
 /* Regional/International/Worlds run above any single game store: no
-   "Hosted by" label or store logo, just the event city, centered in the
-   space where the store section would otherwise sit. */
+   "Hosted by" label or store logo. The event city sits just under the
+   tournament logo in the header instead of down in the store section (that
+   section is left empty for these types), and the place-card grid nudges
+   down slightly to balance the extra header content. */
 .g-hosted-by.big-event .g-hosted-by-label { display: none; }
 .g-hosted-by.big-event .g-store-location {
-  top: 850px; height: 110px; font-size: 66px;
+  top: 225px; height: 50px; font-size: 38px;
 }
+
+.g-placements.big-event .place-card.row-1 { top: 318px; }
+.g-placements.big-event .place-card.row-2 { top: 547px; }
 
 .g-footer { position: absolute; inset: 0; font-size: 28px; }
 .g-footer-credits { position: absolute; left: 30px; bottom: 0; width: 846px; line-height: 1.35; }
