@@ -10,7 +10,11 @@ function trackSpriteLoad(img, url) {
     return;
   }
   img.classList.remove('sprite-empty');
-  img.crossOrigin = 'anonymous';
+  // No crossOrigin here: it's not needed for plain on-page display, and
+  // forcing CORS mode on every preview image makes some CDN-cached sprites
+  // fail to load (their CORS headers aren't always present on the cached
+  // response, even though a normal request gets the image fine). Export
+  // handles CORS itself via html2canvas's useCORS option -- see export.js.
   img.onerror = () => img.classList.add('sprite-broken');
   img.onload = () => img.classList.remove('sprite-broken');
   img.src = url;
