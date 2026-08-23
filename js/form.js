@@ -143,6 +143,13 @@ function buildPlacesEditor() {
       scheduleRender();
     });
 
+    const badgeInput = card.querySelector('.p-badge');
+    badgeInput.value = place.badge;
+    badgeInput.addEventListener('input', e => {
+      state.places[placeIdx].badge = e.target.value;
+      scheduleRender();
+    });
+
     const slotsContainer = card.querySelector('.p-team-slots');
     place.team.forEach((slot, slotIdx) => {
       const slotNode = slotTpl.content.firstElementChild.cloneNode(true);

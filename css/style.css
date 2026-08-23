@@ -99,6 +99,7 @@ html, body {
 }
 .place-form-legend { font-weight: 700; padding: 0 6px; }
 .place-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.place-form-row .field:has(.p-badge) { grid-column: 1 / -1; }
 .p-team-slots { display: grid; gap: 6px; margin-top: 8px; }
 .slot-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: end; }
 .slot-field { margin-bottom: 0; }
@@ -138,124 +139,132 @@ html, body {
   font-size: 12.5px;
 }
 
-/* ---------------------------------- The graphic itself (2000x1125) ---------------------------------- */
+/* ---------------------------------- The graphic itself (2000x1125) ----------------------------------
+ * Every measurement below (positions, sizes, font sizes, colors, corner
+ * radii, border/shadow specs) was read directly out of the club's own
+ * template deck (NEW_Top_Cut_Graphic_with_items_and_teras.pptx) -- its
+ * slide is 20in x 11.25in, and this canvas is 2000x1125px, so 100px = 1in
+ * and every px value here is that inch measurement * 100.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap');
 
 .graphic {
   width: 2000px;
   height: 1125px;
   position: relative;
   transform-origin: top left;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Oswald', Arial, Helvetica, sans-serif;
+  font-weight: 700;
   color: #fff;
-  background:
-    linear-gradient(180deg, #1c86cf 0%, #4aa4c9 25%, #9fbfae 52%, #ddad5c 78%, #e8a13c 100%);
+  background-image: url('../assets/background.png');
   background-size: cover;
   background-position: center;
+  background-color: #1c86cf;
   overflow: hidden;
   user-select: none;
 }
-.graphic.has-custom-bg { background-color: #333; }
 
-.g-header {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr 1.4fr 1fr;
-  align-items: center;
-  padding: 34px 46px 20px;
-  min-height: 210px;
+/* Every text element in the template carries the same drop shadow. */
+.graphic, .graphic * { text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5); }
+
+/* .g-header/.g-placements/.g-hosted-by/.g-footer all cover the full canvas
+   (inset:0) so every child below can be positioned with the exact
+   canvas-absolute px coordinates measured from the template, regardless of
+   normal document flow. */
+.g-header { position: absolute; inset: 0; }
+
+.g-header-contact {
+  position: absolute; left: 8px; top: 8px; width: 400px; height: 192px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  font-size: 33px;
 }
+.g-contact-row { display: flex; align-items: center; gap: 12px; }
+.g-icon { font-size: 30px; width: 40px; text-align: center; }
+.g-icon-img { width: 40px; height: 40px; object-fit: contain; text-shadow: none; }
 
-.g-header-contact { display: flex; flex-direction: column; gap: 8px; font-size: 24px; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.35); }
-.g-contact-row { display: flex; align-items: center; gap: 10px; }
-.g-icon { font-size: 22px; width: 26px; text-align: center; }
-
-.g-header-title { display: flex; align-items: center; justify-content: center; text-align: center; min-height: 140px; }
-.g-tourney-logo { max-height: 150px; max-width: 100%; object-fit: contain; }
-.g-custom-title-block { display: flex; flex-direction: column; gap: 6px; }
-.g-custom-title { font-size: 54px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.35); line-height: 1.05; }
-.g-custom-subtitle { font-size: 32px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.35); }
-
-.g-header-orglogo { display: flex; justify-content: flex-end; }
-.g-header-orglogo img { width: 130px; height: 130px; object-fit: contain; }
-
-.g-placements {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 22px;
-  padding: 8px 46px;
-  height: 620px;
+.g-header-title {
+  position: absolute; left: 300px; right: 300px; top: 0; height: 220px;
+  display: flex; align-items: center; justify-content: center; text-align: center;
 }
+.g-tourney-logo { max-height: 190px; max-width: 100%; object-fit: contain; }
+.g-custom-title-block { display: flex; flex-direction: column; gap: 4px; }
+.g-custom-title, .g-custom-subtitle { font-size: 61px; line-height: 1.08; }
 
-.place-card { display: flex; flex-direction: column; gap: 10px; }
+.g-header-orglogo {
+  position: absolute; right: 63px; top: -16px; width: 262px; height: 262px;
+}
+.g-header-orglogo img { width: 100%; height: 100%; object-fit: contain; }
 
-.place-card-topline { display: flex; align-items: center; gap: 14px; }
+.g-placements { position: absolute; inset: 0; }
+
+/* The template's name-bar and rank badge sit at a fixed offset above the
+   team box in both rows, so each place-card is positioned by its team
+   box's corner and the other two pieces are offset from that. */
+.place-card { position: absolute; width: 976px; height: 137px; }
+.place-card.col-left { left: 8px; }
+.place-card.col-right { left: 1017px; }
+.place-card.row-1 { top: 298px; }
+.place-card.row-2 { top: 527px; }
+
 .place-rank {
-  font-size: 40px;
-  font-weight: 800;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.4);
-  width: 90px;
-  flex-shrink: 0;
+  position: absolute; left: 7px; top: -81px; width: 130px; height: 101px;
+  display: flex; align-items: center;
+  font-size: 50px;
 }
+
 .place-namebar {
-  flex: 1;
-  background: rgba(255,255,255,0.35);
-  border-radius: 8px;
-  padding: 12px 20px;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 24px;
+  position: absolute; left: 118px; top: -61px; width: 821px; height: 61px;
+  background: rgba(246, 248, 251, 0.557);
+  border: 1px solid #595959;
+  border-radius: 23px 0 23px 0;
+  padding: 0 26px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
 }
-.place-player { font-size: 30px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-.place-handle { font-size: 24px; font-weight: 600; opacity: 0.92; text-shadow: 0 1px 2px rgba(0,0,0,0.3); white-space: nowrap; }
+.place-player { font-size: 42px; }
+.place-handle { font-size: 42px; opacity: 0.92; white-space: nowrap; }
 
 .place-team {
-  flex: 1;
-  background: rgba(255,255,255,0.22);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 10px 14px;
+  position: absolute; inset: 0;
+  background: rgba(246, 248, 251, 0.329);
+  border: 1px solid #595959;
+  border-radius: 23px;
+  display: flex; align-items: center; justify-content: space-evenly;
+  padding: 0 24px;
 }
 
-.g-slot { display: flex; align-items: center; gap: 4px; }
-.g-pokemon-sprite, .g-item-sprite { display: block; object-fit: contain; }
-.g-pokemon-sprite { width: 112px; height: 112px; }
-.g-item-sprite { width: 44px; height: 44px; }
+.g-slot { position: relative; width: 118px; height: 118px; }
+.g-pokemon-sprite { display: block; width: 100%; height: 100%; object-fit: contain; }
+.g-item-sprite {
+  position: absolute; right: -14px; bottom: -4px;
+  width: 46px; height: 46px; object-fit: contain;
+}
 .g-pokemon-sprite.sprite-empty, .g-item-sprite.sprite-empty { visibility: hidden; }
 .g-pokemon-sprite.sprite-broken, .g-item-sprite.sprite-broken {
-  outline: 2px dashed rgba(255,80,80,0.9);
-  background: rgba(255,80,80,0.15);
+  outline: 2px dashed rgba(255, 80, 80, 0.9);
+  background: rgba(255, 80, 80, 0.15);
   border-radius: 6px;
 }
 
-.g-hosted-by {
-  text-align: center;
-  padding: 6px 0 4px;
+.g-hosted-by { position: absolute; inset: 0; }
+.g-hosted-by-label {
+  position: absolute; left: 0; right: 0; top: 693px; height: 90px;
+  font-size: 44px; text-align: center;
 }
-.g-hosted-by-label { font-size: 26px; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.3); margin-bottom: 4px; }
-.g-store-logo { max-height: 120px; max-width: 420px; object-fit: contain; }
-.g-store-name-fallback { font-size: 52px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.35); }
-.g-store-location { font-size: 26px; font-weight: 700; margin-top: 4px; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+.g-store-logo, .g-store-name-fallback {
+  position: absolute; left: 50%; top: 788px; transform: translateX(-50%);
+  max-height: 242px; max-width: 648px; object-fit: contain;
+}
+.g-store-name-fallback { font-size: 60px; white-space: nowrap; }
 
-.g-footer {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  padding: 14px 30px;
-  font-size: 17px;
-  font-weight: 700;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+.g-store-location {
+  position: absolute; left: 0; right: 0; top: 1025px; height: 90px;
+  font-size: 44px; text-align: center;
 }
-.g-footer-credits { line-height: 1.4; opacity: 0.95; }
-.g-footer-organizer { text-align: right; }
+
+.g-footer { position: absolute; inset: 0; font-size: 28px; }
+.g-footer-credits { position: absolute; left: 0; bottom: 0; width: 846px; line-height: 1.35; }
+.g-footer-organizer { position: absolute; right: 30px; bottom: 0; width: 400px; text-align: right; }
 
 /* ---------------------------------- Dialogs ---------------------------------- */
 

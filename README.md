@@ -18,23 +18,50 @@ Open `index.html` (locally or via GitHub Pages) and you get:
   persist in the browser) so every graphic you generate after that matches
   your exact template pixel-for-pixel.
 
-## Why it looks close-but-not-identical out of the box
+## Matching the real template exactly
 
-I wasn't able to pull the actual background/logo image files out of the
-screenshots you shared, so the app ships with a CSS-recreated version of the
-layout (same structure, spacing, and typography) plus placeholder art:
+The layout, fonts, colors, and every brand asset were pulled directly out of
+the club's own template deck (`NEW_Top_Cut_Graphic_with_items_and_teras.pptx`)
+rather than approximated from screenshots — extracted with `python-pptx`
+(exact shape positions/sizes in EMU, converted 1:1 to px since the deck's
+20"×11.25" slide maps directly onto this app's 2000×1125 canvas at
+100px/inch) and by reading each text run's real font (**Oswald**, bold),
+size, color, and drop-shadow spec straight out of the slide XML. `assets/`
+ships the real files pulled from that deck, used as the defaults for
+everything in **Branding…**:
 
-- Background: a blue → orange CSS gradient standing in for the real
-  skyline/gradient background image.
-- Org logo (top right): a simple circular placeholder badge.
-- Tournament type / store logos: fall back to plain bold text of the
-  name until a logo is uploaded.
+- `assets/background.png` — the real Salt Lake City skyline/gradient
+- `assets/org-logo.png` — the real circular Utah Pokémon VG Championships logo
+- `assets/icon-x.png`, `assets/icon-globe.png` — the header's contact-row icons
+- `assets/logos/*.png` — the tournament-type logos the deck showed: League
+  Challenge, League Cup, Regional Championship, Global Challenge
+- `assets/stores/game-grid.png` — the Game Grid store logo
 
-Open **Branding…** and upload your actual PNGs for the background, the
-circular Utah VGC logo, each tournament-type logo (League Challenge, etc.),
-and each store's logo. They're stored as data URLs in `localStorage` and
-baked into every future graphic and PNG export — at that point the output
-is your real template, not a recreation of it.
+**World Championship has no logo yet** — the deck didn't include one, so
+that tournament type falls back to plain text until you upload it in
+**Branding…** (*reminder, as requested*).
+
+Uploading a file in **Branding…** stores a data-URL override in
+`localStorage` on top of these bundled defaults (per tournament type / per
+store), and **Reset to default** / **Remove** clears the override to fall
+back to the real bundled asset again — not a placeholder.
+
+Two things intentionally differ from the source deck:
+
+- **Uniform sprite sizing** — the original graphics used each Pokémon
+  sprite at its own native size (irregular). Per the original requirement
+  that "Pokémon sprites must all have the same dimensionality," this app
+  always renders them in a fixed box instead.
+- **No Tera type icon** — every Pokémon slot in the source deck actually
+  carries three stacked images (Pokémon, item, Tera type shard), because
+  those example graphics were for mainline Scarlet/Violet events. Pokémon
+  Champions has no Terastallizing mechanic, so this app only shows
+  Pokémon + item, as scoped earlier.
+
+The source deck also contains a structurally different graphic — a 6-player
+"Day 1 / Swiss standings" layout (ordinal rank like "261st" instead of
+1st–4th, a Day/location subtitle instead of a tournament title) — which
+isn't built here. Ask if you want that as a second graphic type.
 
 ## Pokémon & item sprites
 
@@ -66,10 +93,13 @@ changes needed. A red dashed box on a sprite in the preview means it failed
 to load — that's your cue to check the name/URL before exporting.
 
 **Network access note**: sprites are hot-linked from `archives.bulbagarden.net`
-and `i.pokebase.app`, so if this app is ever run somewhere with restricted
+and `i.pokebase.app`, and the Oswald font loads from `fonts.googleapis.com`/
+`fonts.gstatic.com`, so if this app is ever run somewhere with restricted
 outbound network access (e.g. a locked-down Claude Code cloud environment),
-those two domains — plus `pokebase.app` itself — need to be reachable for
-sprites to load and for `js/data/*.js` to be regenerated.
+those domains — plus `pokebase.app` itself — need to be reachable for
+sprites/fonts to load and for `js/data/*.js` to be regenerated. Everything
+else (background, logos, icons) is bundled in `assets/` and needs no
+network access.
 
 ## "Version control"
 
@@ -88,11 +118,14 @@ This is a static site with no database, so persistence is local-first:
 
 ```
 index.html          App shell: form fields, preview markup, dialogs, templates
-css/style.css        All styling, including the 2000×1125 graphic itself
+css/style.css        All styling, including the 2000×1125 graphic itself (exact px
+                     positions/fonts/colors extracted from the template deck)
+assets/              Real brand assets extracted from the template deck (background,
+                     org logo, contact icons, tournament-type logos, store logos)
 js/data/pokemon.js    Scraped Champions species+form list: {name, sprite url}
 js/data/items.js      Scraped Champions item list: {name, sprite url}
 js/sprites.js         Name → sprite URL lookup (+ direct-URL override)
-js/catalog.js         Tournament-type list, default store, placeholder logo
+js/catalog.js         Tournament-type/store lists + their default (bundled) logos
 js/state.js           State shape + all localStorage read/write helpers
 js/render.js           Renders state+settings into the .graphic preview DOM
 js/form.js             Builds the editor form and wires it to state

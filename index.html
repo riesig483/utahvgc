@@ -75,8 +75,8 @@
         <div class="g-header">
           <div class="g-header-contact">
             <div class="g-contact-row"><span class="g-icon">🗓️</span><span id="g-date">July 29, 2025</span></div>
-            <div class="g-contact-row"><span class="g-icon">𝕏</span><span id="g-twitter">@Utah_VGC</span></div>
-            <div class="g-contact-row"><span class="g-icon">🌐</span><span id="g-website">utahvgc.com</span></div>
+            <div class="g-contact-row"><img class="g-icon g-icon-img" src="assets/icon-x.png" alt=""><span id="g-twitter">@Utah_VGC</span></div>
+            <div class="g-contact-row"><img class="g-icon g-icon-img" src="assets/icon-globe.png" alt=""><span id="g-website">utahvgc.com</span></div>
             <div class="g-contact-row"><span class="g-icon">✉️</span><span id="g-email">UtahVGC@gmail.com</span></div>
           </div>
           <div class="g-header-title" id="g-header-title">
@@ -133,6 +133,10 @@
         <span>Twitter / X handle</span>
         <input type="text" class="p-handle" placeholder="@handle (optional)">
       </label>
+      <label class="field">
+        <span>Badge text (optional)</span>
+        <input type="text" class="p-badge" placeholder="Defaults to 1st/2nd/3rd/4th &ndash; e.g. 65 CP">
+      </label>
     </div>
     <div class="p-team-slots"></div>
   </fieldset>
@@ -153,12 +157,10 @@
 
 <template id="tpl-place-card-graphic">
   <div class="place-card">
-    <div class="place-card-topline">
-      <span class="place-rank"></span>
-      <div class="place-namebar">
-        <span class="place-player"></span>
-        <span class="place-handle"></span>
-      </div>
+    <span class="place-rank"></span>
+    <div class="place-namebar">
+      <span class="place-player"></span>
+      <span class="place-handle"></span>
     </div>
     <div class="place-team"></div>
   </div>

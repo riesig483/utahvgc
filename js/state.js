@@ -31,6 +31,7 @@ function defaultPlace() {
   return {
     name: '',
     handle: '',
+    badge: '', // overrides the "1st"/"2nd"/... label, e.g. "65 CP" for a Global Challenge
     team: [0, 1, 2, 3, 4, 5].map(emptyTeamSlot),
   };
 }
@@ -51,11 +52,11 @@ function defaultState() {
 
 function defaultSettings() {
   return {
-    background: null, // data URL, or null for the default CSS gradient
-    orgLogo: null, // data URL, or null for the placeholder badge
-    tourneyLogos: {}, // { [tourneyTypeId]: dataURL }
+    background: null, // data URL override, or null to use the bundled DEFAULT_BACKGROUND
+    orgLogo: null, // data URL override, or null to use the bundled DEFAULT_ORG_LOGO
+    tourneyLogos: {}, // { [tourneyTypeId]: dataURL } overrides on top of DEFAULT_TOURNEY_LOGOS
     stores: DEFAULT_STORES.slice(),
-    storeLogos: {}, // { [storeId]: dataURL }
+    storeLogos: {}, // { [storeId]: dataURL } overrides on top of DEFAULT_STORE_LOGOS
     twitter: '@Utah_VGC',
     website: 'utahvgc.com',
     email: 'UtahVGC@gmail.com',

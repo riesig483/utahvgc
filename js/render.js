@@ -29,12 +29,12 @@ function renderHeader(state, settings) {
   document.getElementById('g-email').textContent = settings.email;
 
   const orgLogo = document.getElementById('g-org-logo');
-  orgLogo.src = settings.orgLogo || defaultOrgLogoDataUri();
+  orgLogo.src = settings.orgLogo || DEFAULT_ORG_LOGO;
 
   const logoImg = document.getElementById('g-tourney-logo');
   const customBlock = document.getElementById('g-custom-title-block');
   const isCustom = state.tourneyType === 'custom';
-  const uploadedLogo = !isCustom && settings.tourneyLogos[state.tourneyType];
+  const uploadedLogo = !isCustom && (settings.tourneyLogos[state.tourneyType] || DEFAULT_TOURNEY_LOGOS[state.tourneyType]);
 
   if (uploadedLogo) {
     logoImg.src = uploadedLogo;
@@ -67,7 +67,9 @@ function renderPlacements(state) {
 
   state.places.forEach((place, idx) => {
     const node = tpl.content.firstElementChild.cloneNode(true);
-    node.querySelector('.place-rank').textContent = PLACE_LABELS[idx];
+    node.classList.add(idx % 2 === 0 ? 'col-left' : 'col-right');
+    node.classList.add(idx < 2 ? 'row-1' : 'row-2');
+    node.querySelector('.place-rank').textContent = place.badge || PLACE_LABELS[idx];
     node.querySelector('.place-player').textContent = place.name || '';
     node.querySelector('.place-handle').textContent = place.handle
       ? (place.handle.startsWith('@') ? place.handle : '@' + place.handle)
@@ -91,7 +93,9 @@ function renderHostedBy(state, settings) {
   const store = settings.stores.find(s => s.id === state.store);
   const isCustomStore = state.store === 'custom' || !store;
   const storeName = isCustomStore ? state.storeCustomName : (store ? store.name : '');
-  const logo = !isCustomStore && store ? settings.storeLogos[store.id] : null;
+  const logo = !isCustomStore && store
+    ? (settings.storeLogos[store.id] || DEFAULT_STORE_LOGOS[store.id])
+    : null;
 
   const logoImg = document.getElementById('g-store-logo');
   const fallback = document.getElementById('g-store-name-fallback');
@@ -122,13 +126,7 @@ function escapeHtml(str) {
 
 function renderBackground(settings) {
   const graphic = document.getElementById('graphic');
-  if (settings.background) {
-    graphic.style.backgroundImage = `url("${settings.background}")`;
-    graphic.classList.add('has-custom-bg');
-  } else {
-    graphic.style.backgroundImage = '';
-    graphic.classList.remove('has-custom-bg');
-  }
+  graphic.style.backgroundImage = `url("${settings.background || DEFAULT_BACKGROUND}")`;
 }
 
 function renderGraphic(state, settings) {
