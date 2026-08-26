@@ -72,6 +72,32 @@ function megaStoneFor(name) {
   return window.MEGA_STONE_MAP[p.name] || null;
 }
 
+/**
+ * Reverse of megaStoneFor(): given a typed/scanned item name that resolves
+ * to a Mega Stone, returns the exact Mega-form Pokemon name it belongs to
+ * (e.g. "Charizardite X" -> "Charizard (Mega X)"), or null if it isn't a
+ * Mega Stone. Built once from the same real scraped MEGA_STONE_MAP, since
+ * a base species can have more than one Mega form (each with its own
+ * distinct stone -- e.g. Charizard's X/Y), so the stone name alone
+ * determines exactly which form, not just the species.
+ */
+const STONE_TO_MEGA_FORM = new Map();
+for (const [pokemonName, stoneName] of Object.entries(window.MEGA_STONE_MAP)) {
+  STONE_TO_MEGA_FORM.set(normalizeKey(stoneName), pokemonName);
+}
+
+function megaFormForStone(itemName) {
+  const i = findItem(itemName);
+  if (!i) return null;
+  return STONE_TO_MEGA_FORM.get(normalizeKey(i.name)) || null;
+}
+
+/** True if `pokemonName` is the base species of Mega-form name `megaFormName` (e.g. "Charizard" <-> "Charizard (Mega X)"). */
+function pokemonSpeciesMatches(pokemonName, megaFormName) {
+  const species = String(megaFormName || '').replace(/\s*\([^)]*\)\s*$/, '');
+  return collapseKey(pokemonName) === collapseKey(species);
+}
+
 function findItem(name) {
   const key = normalizeKey(name);
   if (!key) return null;

@@ -189,6 +189,16 @@ function buildPlacesEditor() {
       iInput.value = slot.item;
       iInput.addEventListener('input', e => {
         state.places[placeIdx].team[slotIdx].item = e.target.value;
+        // Reverse of the Mega->Stone auto-fill above: if this item IS a
+        // Mega Stone and the Pokemon field is still that stone's base
+        // species (not already the Mega form), switch it to the exact
+        // Mega form so its sprite shows automatically -- same result
+        // whether you pick the Mega Pokemon or its stone first.
+        const megaForm = megaFormForStone(e.target.value);
+        if (megaForm && pInput.value !== megaForm && pokemonSpeciesMatches(pInput.value, megaForm)) {
+          state.places[placeIdx].team[slotIdx].pokemon = megaForm;
+          pInput.value = megaForm;
+        }
         scheduleRender();
       });
 

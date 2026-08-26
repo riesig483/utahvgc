@@ -153,12 +153,24 @@ function applyTeamsheetResult(placeIdx, slots) {
     pInput.classList.toggle('slot-low-confidence', lowConfidence);
     iInput.classList.toggle('slot-low-confidence', lowConfidence);
 
-    // Same Mega Stone auto-fill rule as typing a Mega Evolution in by hand.
+    // Same Mega Stone auto-fill rules as the manual form (js/form.js):
+    // a Mega-form Pokemon reading forces its one matching stone, and --
+    // since teamsheets often just say "Charizard" + "Charizardite X"
+    // rather than writing out "Charizard (Mega X)" -- a stone reading
+    // whose base species matches the Pokemon reading forces the Mega
+    // form so the right sprite shows automatically either way.
     const stone = megaStoneFor(pField.value);
     if (stone) {
       state.places[placeIdx].team[slotIdx].item = stone;
       iInput.value = stone;
       iInput.classList.remove('slot-low-confidence');
+    } else {
+      const megaForm = megaFormForStone(iField.value);
+      if (megaForm && pokemonSpeciesMatches(pField.value, megaForm)) {
+        state.places[placeIdx].team[slotIdx].pokemon = megaForm;
+        pInput.value = megaForm;
+        pInput.classList.remove('slot-low-confidence');
+      }
     }
   });
 
