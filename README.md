@@ -17,6 +17,9 @@ Open `index.html` (locally or via GitHub Pages) and you get:
 - **Branding…** — upload the *real* background/logo image files once (they
   persist in the browser) so every graphic you generate after that matches
   your exact template pixel-for-pixel.
+- **Teamsheet photo scanning** (optional) — attach a photo of a printed or
+  handwritten teamsheet to a placement and have Claude read its 6 Pokémon +
+  held items straight into the form, instead of typing them in by hand.
 
 ## Matching the real template exactly
 
@@ -109,6 +112,33 @@ sprites/fonts to load and for `js/data/*.js` to be regenerated. Everything
 else (background, logos, icons) is bundled in `assets/` and needs no
 network access.
 
+## Teamsheet photo scanning
+
+Each placement's form card has an optional "Teamsheet photo" upload and a
+"Scan this teamsheet" button, plus a "Scan all attached teamsheets" button
+above the Standings section that scans every attached photo in one request.
+This is **bring-your-own-key**: paste a Claude API key into **Branding… →
+Claude API key** and the page calls `api.anthropic.com` directly from your
+browser (via the `anthropic-dangerous-direct-browser-access` opt-in header)
+using Claude Opus 5's vision input — there's no backend, and the key never
+touches any server of ours, only `localStorage` and Anthropic's own API.
+Usage is billed to your own Anthropic account; a batch of four teamsheet
+photos runs a few cents.
+
+The request forces a `record_teamsheets` tool call so Claude returns
+structured `{pokemon, item, confidence}` slots rather than free text. Every
+returned name is then snapped onto this app's own scraped Champions roster
+via the same `findPokemon()`/`findItem()` lookup the manual text inputs use
+(`js/sprites.js`) — Mega Evolutions still auto-fill their Mega Stone the
+same as typing one in by hand. A slot gets highlighted for a manual
+double-check (`js/teamsheet.js`) whenever Claude itself flagged it
+`low`-confidence, or its reading didn't match a real roster entry — nothing
+is ever silently guessed at or auto-submitted; it only pre-fills the same
+fields you'd otherwise type into. See Anthropic's
+[vision docs](https://platform.claude.com/docs/en/build-with-claude/vision)
+for the accuracy caveats this is designed around (handwriting, low-quality
+or very small source images).
+
 ## "Version control"
 
 This is a static site with no database, so persistence is local-first:
@@ -139,7 +169,8 @@ js/state.js           State shape + all localStorage read/write helpers
 js/render.js           Renders state+settings into the .graphic preview DOM
 js/form.js             Builds the editor form and wires it to state
 js/drafts.js            Drafts/export-history dialog logic
-js/settings.js          Branding dialog logic (uploads, contact info, credits)
+js/teamsheet.js          Teamsheet photo scanning via the Claude API (bring-your-own-key)
+js/settings.js          Branding dialog logic (uploads, contact info, credits, Claude API key)
 js/export.js            html2canvas PNG export
 js/app.js               Bootstraps everything on page load
 vendor/html2canvas.min.js  Vendored export library (no CDN dependency)
@@ -154,7 +185,7 @@ be regenerated).
 
 ## Roadmap
 
-- **Teamsheet / Pokepaste import** — parse a pasted Pokepaste or an
-  uploaded photo of a handwritten/typed teamsheet to auto-fill a place's 6
-  Pokémon + items instead of typing them in one at a time. Not built yet;
-  the per-slot text inputs are the manual equivalent for now.
+- **Pokepaste import** — parse a pasted Pokepaste to auto-fill a place's 6
+  Pokémon + items instead of typing them in one at a time (or attaching a
+  teamsheet photo, see above). Not built yet; the per-slot text inputs are
+  the manual equivalent for now.

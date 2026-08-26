@@ -73,6 +73,7 @@ function wireSettingsDialog() {
   for (const [fieldId, key] of [
     ['s-twitter', 'twitter'], ['s-website', 'website'], ['s-email', 'email'],
     ['s-credit1', 'credit1'], ['s-credit2', 'credit2'],
+    ['s-claude-api-key', 'claudeApiKey'],
   ]) {
     document.getElementById(fieldId).addEventListener('input', e => {
       settings[key] = e.target.value;
@@ -92,4 +93,5 @@ function syncSettingsFormFromSettings() {
   document.getElementById('s-email').value = settings.email;
   document.getElementById('s-credit1').value = settings.credit1;
   document.getElementById('s-credit2').value = settings.credit2;
+  document.getElementById('s-claude-api-key').value = settings.claudeApiKey || '';
 }

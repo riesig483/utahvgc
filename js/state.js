@@ -62,6 +62,7 @@ function defaultSettings() {
     email: 'UtahVGC@gmail.com',
     credit1: 'LOGO AND BACKGROUND BY: @The1HotGinger',
     credit2: 'INFOGRAPHIC BY: @chaldavgc',
+    claudeApiKey: '', // bring-your-own-key for teamsheet photo scanning (js/teamsheet.js) -- never sent anywhere but api.anthropic.com
   };
 }
 

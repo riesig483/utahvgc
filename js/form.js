@@ -135,6 +135,7 @@ function wireStaticFields() {
 function buildPlacesEditor() {
   const container = document.getElementById('places-editor');
   container.querySelectorAll('.place-form-card').forEach(n => n.remove());
+  resetTeamsheetPhotos();
 
   const cardTpl = document.getElementById('tpl-place-card-form');
   const slotTpl = document.getElementById('tpl-team-slot');
@@ -142,6 +143,7 @@ function buildPlacesEditor() {
   state.places.forEach((place, placeIdx) => {
     const card = cardTpl.content.firstElementChild.cloneNode(true);
     card.querySelector('.place-form-legend').textContent = `${PLACE_LABELS[placeIdx]} place`;
+    wireTeamsheetInputs(card, placeIdx);
 
     const nameInput = card.querySelector('.p-name');
     nameInput.value = place.name;

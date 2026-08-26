@@ -110,6 +110,26 @@ html, body {
 .slot-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: end; }
 .slot-field { margin-bottom: 0; }
 
+.p-teamsheet-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-top: 4px; padding: 8px; background: #f0f2f6; border-radius: 6px;
+}
+.p-teamsheet-field { margin-bottom: 0; flex: 1 1 auto; min-width: 160px; }
+.p-teamsheet-status { font-size: 12px; color: var(--text-muted); flex-basis: 100%; }
+
+/* A Claude-scanned slot Claude itself flagged low-confidence, or whose
+   reading didn't match a real Champions roster entry -- needs a manual
+   double-check before export. */
+.slot-pokemon.slot-low-confidence, .slot-item.slot-low-confidence {
+  border-color: #d68a00;
+  background: #fff8e8;
+}
+
+.teamsheet-batch-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
 /* ---------------------------------- Preview panel ---------------------------------- */
 
 .preview-panel {

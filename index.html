@@ -62,6 +62,10 @@
 
     <div class="field-group" id="places-editor">
       <h2>Standings</h2>
+      <div class="teamsheet-batch-row">
+        <button id="btn-scan-all-teamsheets" class="btn btn-ghost btn-sm" type="button">Scan all attached teamsheets</button>
+        <span class="dlg-hint">Attach a photo per placement below, then scan one at a time or all at once.</span>
+      </div>
       <!-- place cards injected by JS -->
     </div>
 
@@ -137,6 +141,14 @@
         <span>Badge text (optional)</span>
         <input type="text" class="p-badge" placeholder="Defaults to 1st/2nd/3rd/4th &ndash; e.g. 65 CP">
       </label>
+    </div>
+    <div class="p-teamsheet-row">
+      <label class="field p-teamsheet-field">
+        <span>Teamsheet photo (optional)</span>
+        <input type="file" class="p-teamsheet-file" accept="image/*">
+      </label>
+      <button type="button" class="btn btn-ghost btn-sm p-teamsheet-scan">Scan this teamsheet</button>
+      <span class="p-teamsheet-status"></span>
     </div>
     <div class="p-team-slots"></div>
   </fieldset>
@@ -241,6 +253,20 @@
     <label class="field"><span>Footer credits (line 2)</span><input type="text" id="s-credit2"></label>
   </div>
 
+  <h3>Teamsheet photo scanning (optional)</h3>
+  <p class="dlg-hint">
+    Paste your own Claude API key to enable "Scan teamsheet" on the Standings form &mdash;
+    it reads Pok&eacute;mon + held items off an uploaded teamsheet photo per placement.
+    Your key is saved only in this browser (localStorage) and is sent directly from this
+    page to api.anthropic.com &mdash; never to any server of ours. Usage is billed to your
+    own Anthropic account (a few cents per scanned batch). Get a key at
+    <a href="https://platform.claude.com" target="_blank" rel="noopener">platform.claude.com</a>.
+  </p>
+  <label class="field">
+    <span>Claude API key</span>
+    <input type="password" id="s-claude-api-key" placeholder="sk-ant-...">
+  </label>
+
   <div class="dlg-close-row"><button class="btn btn-primary" id="btn-close-settings">Done</button></div>
 </dialog>
 
@@ -276,6 +302,7 @@
 <script src="js/render.js"></script>
 <script src="js/form.js"></script>
 <script src="js/drafts.js"></script>
+<script src="js/teamsheet.js"></script>
 <script src="js/settings.js"></script>
 <script src="js/export.js"></script>
 <script src="js/app.js"></script>

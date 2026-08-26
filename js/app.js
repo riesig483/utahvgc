@@ -50,6 +50,7 @@ function init() {
   wireSettingsDialog();
   wireExportDialog();
   wireNewButton();
+  wireTeamsheetBatch();
   renderGraphic(state, settings);
 }
 
