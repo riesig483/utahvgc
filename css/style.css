@@ -107,8 +107,12 @@ html, body {
 .place-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .place-form-row .field:has(.p-badge) { grid-column: 1 / -1; }
 .p-team-slots { display: grid; gap: 6px; margin-top: 8px; }
-.slot-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: end; }
+.slot-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: end; }
 .slot-field { margin-bottom: 0; }
+.slot-reorder { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.slot-reorder span { visibility: hidden; }
+.slot-reorder-btns { display: flex; gap: 2px; }
+.slot-reorder-btns .btn { padding: 6px 8px; line-height: 1; font-size: 11px; }
 
 .p-teamsheet-row {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;

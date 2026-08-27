@@ -192,11 +192,52 @@ function buildPlacesEditor() {
         scheduleRender();
       });
 
+      const upBtn = slotNode.querySelector('.slot-move-up');
+      const downBtn = slotNode.querySelector('.slot-move-down');
+      upBtn.disabled = slotIdx === 0;
+      downBtn.disabled = slotIdx === place.team.length - 1;
+      upBtn.addEventListener('click', () => moveTeamSlot(placeIdx, slotIdx, -1));
+      downBtn.addEventListener('click', () => moveTeamSlot(placeIdx, slotIdx, 1));
+
       slotsContainer.appendChild(slotNode);
     });
 
     container.appendChild(card);
   });
+}
+
+/**
+ * Reorders two adjacent team slots by swapping their *contents* (state +
+ * live input values/low-confidence flags) rather than rebuilding any DOM --
+ * so the up/down buttons stay put at fixed positions (slot 1's "up" is
+ * always disabled, slot 6's "down" is always disabled) and nothing else on
+ * the card -- namely an attached-but-not-yet-scanned teamsheet photo -- gets
+ * disturbed.
+ */
+function moveTeamSlot(placeIdx, slotIdx, direction) {
+  const team = state.places[placeIdx].team;
+  const otherIdx = slotIdx + direction;
+  if (otherIdx < 0 || otherIdx >= team.length) return;
+
+  [team[slotIdx], team[otherIdx]] = [team[otherIdx], team[slotIdx]];
+
+  const card = document.querySelectorAll('.place-form-card')[placeIdx];
+  const slotNodes = card.querySelectorAll('.slot-form');
+  swapSlotFieldContents(slotNodes[slotIdx], slotNodes[otherIdx]);
+
+  scheduleRender();
+}
+
+function swapSlotFieldContents(a, b) {
+  for (const cls of ['.slot-pokemon', '.slot-item']) {
+    const aInput = a.querySelector(cls);
+    const bInput = b.querySelector(cls);
+    [aInput.value, bInput.value] = [bInput.value, aInput.value];
+    const aFlagged = aInput.classList.contains('slot-low-confidence');
+    const bFlagged = bInput.classList.contains('slot-low-confidence');
+    aInput.classList.toggle('slot-low-confidence', bFlagged);
+    bInput.classList.toggle('slot-low-confidence', aFlagged);
+  }
 }
 
 function rebuildFormFromState() {
