@@ -117,7 +117,10 @@
       <label>Zoom
         <input type="range" id="preview-zoom" min="30" max="100" value="55">
       </label>
-      <span id="sprite-warning" class="sprite-warning" hidden>&#9888; Some sprites failed to load &mdash; check your connection or fix the name/URL.</span>
+      <span id="sprite-warning" class="sprite-warning" hidden>
+        <span>&#9888; Some sprites failed to load &mdash; check your connection or fix the name/URL.</span>
+        <button type="button" id="btn-retry-sprites" class="btn btn-ghost btn-sm">Retry</button>
+      </span>
     </div>
   </section>
 

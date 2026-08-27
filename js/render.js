@@ -1,23 +1,61 @@
 /** Renders `state` + `settings` into the .graphic preview DOM. */
 
-let spriteLoadFailures = 0;
+/**
+ * Sprites are hotlinked straight from archives.bulbagarden.net (a
+ * MediaWiki instance, not a CDN) and i.pokebase.app -- a render can ask
+ * for up to 24 of them at once (4 placements x 6 slots), and either host
+ * occasionally hiccups on that kind of burst with a transient reset/
+ * timeout rather than a real "this image doesn't exist" error. Retrying a
+ * couple of times before giving up turns most of those into a load that
+ * just took an extra second, instead of a sprite that's stuck broken for
+ * the rest of the session.
+ */
+const SPRITE_RETRY_DELAYS_MS = [600, 1800];
 
 function trackSpriteLoad(img, url) {
-  spriteLoadFailures = 0; // recomputed fully on every render, see updateSpriteWarning
   if (!url) {
     img.removeAttribute('src');
+    delete img.dataset.spriteUrl;
     img.classList.add('sprite-empty');
     return;
   }
   img.classList.remove('sprite-empty');
+  img.dataset.spriteUrl = url; // so retryFailedSprites() can re-attempt this exact sprite later
+  attemptSpriteLoad(img, url, 0);
+}
+
+function attemptSpriteLoad(img, url, attempt) {
+  img.onerror = () => {
+    if (attempt < SPRITE_RETRY_DELAYS_MS.length) {
+      setTimeout(() => attemptSpriteLoad(img, url, attempt + 1), SPRITE_RETRY_DELAYS_MS[attempt]);
+    } else {
+      img.classList.add('sprite-broken');
+      updateSpriteWarning();
+    }
+  };
+  img.onload = () => {
+    img.classList.remove('sprite-broken');
+    updateSpriteWarning();
+  };
   // No crossOrigin here: it's not needed for plain on-page display, and
   // forcing CORS mode on every preview image makes some CDN-cached sprites
   // fail to load (their CORS headers aren't always present on the cached
   // response, even though a normal request gets the image fine). Export
   // handles CORS itself via html2canvas's useCORS option -- see export.js.
-  img.onerror = () => img.classList.add('sprite-broken');
-  img.onload = () => img.classList.remove('sprite-broken');
-  img.src = url;
+  //
+  // Re-assigning the exact same src a browser just failed to load is a
+  // no-op in most engines (they compare against the current attribute
+  // value and skip re-fetching), so a retry needs a distinct URL to
+  // actually force a fresh network request -- a harmless cache-busting
+  // query param does that without changing which image loads.
+  img.src = attempt === 0 ? url : `${url}${url.includes('?') ? '&' : '?'}_retry=${attempt}-${Date.now()}`;
+}
+
+/** Re-attempts every sprite currently showing as broken -- wired to the "Retry" button in the warning banner. */
+function retryFailedSprites() {
+  document.querySelectorAll('#graphic .sprite-broken').forEach(img => {
+    if (img.dataset.spriteUrl) attemptSpriteLoad(img, img.dataset.spriteUrl, 0);
+  });
 }
 
 function updateSpriteWarning() {

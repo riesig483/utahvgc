@@ -51,6 +51,7 @@ function init() {
   wireExportDialog();
   wireNewButton();
   wireTeamsheetBatch();
+  document.getElementById('btn-retry-sprites').addEventListener('click', retryFailedSprites);
   renderGraphic(state, settings);
 }
 

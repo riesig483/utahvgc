@@ -161,6 +161,9 @@ html, body {
 .preview-controls label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
 
 .sprite-warning {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: #a15c00;
   background: #fff3d9;
   border: 1px solid #f0d090;
