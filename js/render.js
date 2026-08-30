@@ -27,13 +27,21 @@ function trackSpriteLoad(img, url) {
 function attemptSpriteLoad(img, url, attempt) {
   img.onerror = () => {
     if (attempt < SPRITE_RETRY_DELAYS_MS.length) {
+      // A failed attempt leaves the <img> src pointing at a URL that just
+      // errored, so the browser's own native "broken image" icon shows
+      // while we wait to retry -- hide the element for that window instead
+      // of letting a failure the app is about to silently fix flash on
+      // screen as if it were the final, given-up-on state.
+      img.classList.add('sprite-loading');
       setTimeout(() => attemptSpriteLoad(img, url, attempt + 1), SPRITE_RETRY_DELAYS_MS[attempt]);
     } else {
+      img.classList.remove('sprite-loading');
       img.classList.add('sprite-broken');
       updateSpriteWarning();
     }
   };
   img.onload = () => {
+    img.classList.remove('sprite-loading');
     img.classList.remove('sprite-broken');
     updateSpriteWarning();
   };
