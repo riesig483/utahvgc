@@ -124,3 +124,97 @@ function itemSpriteUrl(name) {
   const i = findItem(raw);
   return i ? i.url : '';
 }
+
+/**
+ * Best-match fuzzy lookup for teamsheet scans (js/teamsheet.js) only. A
+ * real teamsheet often phrases a form differently than this app's own
+ * roster names -- "Ninetales Alolan Form" for "Ninetales (Alola)", "Mega
+ * Charizard X" for "Charizard (Mega X)" -- which the exact/collapsed match
+ * in findPokemon()/findItem() above won't catch. The manual picker doesn't
+ * use these: it already shows the real names via a datalist, and matching
+ * loosely there risks silently swapping in the wrong Pokemon/item while
+ * someone is still mid-typing.
+ */
+const FUZZY_FORM_WORD_ALIASES = {
+  alolan: 'alola', galarian: 'galar', hisuian: 'hisui', paldean: 'paldea',
+};
+const FUZZY_STOPWORDS = new Set(['form', 'forme', 'the']);
+
+function fuzzyTokens(name) {
+  return String(name || '')
+    .toLowerCase()
+    .replace(/[()]/g, ' ')
+    .replace(/[’'.]/g, '')
+    .split(/[\s-]+/)
+    .map(w => FUZZY_FORM_WORD_ALIASES[w] || w)
+    .filter(w => w && !FUZZY_STOPWORDS.has(w));
+}
+
+/** Intersection-over-union of two token lists, treated as sets (word order doesn't matter -- "Mega Charizard X" should match "Charizard (Mega X)"). */
+function tokenSetSimilarity(aTokens, bTokens) {
+  const a = new Set(aTokens);
+  const b = new Set(bTokens);
+  let intersection = 0;
+  for (const t of a) if (b.has(t)) intersection++;
+  const union = a.size + b.size - intersection;
+  return union === 0 ? 0 : intersection / union;
+}
+
+function levenshtein(a, b) {
+  const dp = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      dp[i][j] = a[i - 1] === b[j - 1]
+        ? dp[i - 1][j - 1]
+        : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[a.length][b.length];
+}
+
+/**
+ * Scores `text` against every entry in `roster` and returns the closest
+ * one, or null if nothing is close enough to trust. Tries word-set overlap
+ * first (handles reordering/rewording -- "Alolan Ninetales" vs "Ninetales
+ * (Alola)"), then falls back to nearest edit-distance on the collapsed
+ * full name (handles OCR noise that garbles word boundaries rather than
+ * just rewording it).
+ */
+function bestFuzzyMatch(text, roster) {
+  const queryTokens = fuzzyTokens(text);
+  if (!queryTokens.length) return null;
+
+  let best = null;
+  let bestScore = 0;
+  for (const entry of roster) {
+    const score = tokenSetSimilarity(queryTokens, fuzzyTokens(entry.name));
+    if (score > bestScore) {
+      bestScore = score;
+      best = entry;
+    }
+  }
+  if (best && bestScore >= 0.5) return best;
+
+  const queryCollapsed = collapseKey(text);
+  let bestDist = Infinity;
+  let bestByDistance = null;
+  for (const entry of roster) {
+    const dist = levenshtein(queryCollapsed, collapseKey(entry.name));
+    if (dist < bestDist) {
+      bestDist = dist;
+      bestByDistance = entry;
+    }
+  }
+  const candidateLen = bestByDistance ? collapseKey(bestByDistance.name).length : 0;
+  const maxLen = Math.max(queryCollapsed.length, candidateLen);
+  return bestByDistance && maxLen > 0 && bestDist / maxLen <= 0.35 ? bestByDistance : null;
+}
+
+function findPokemonFuzzy(name) {
+  return bestFuzzyMatch(name, window.POKEMON_DATA);
+}
+
+function findItemFuzzy(name) {
+  return bestFuzzyMatch(name, window.ITEM_DATA);
+}

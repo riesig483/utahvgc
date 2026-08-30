@@ -108,18 +108,26 @@ async function callClaudeTeamsheetScan(apiKey, entries) {
   return toolUse.input.sheets || [];
 }
 
-/** Snap a Claude-read Pokemon name onto the app's own Champions roster where possible. */
+/**
+ * Snap a Claude-read Pokemon name onto the app's own Champions roster.
+ * Real teamsheets often phrase a form differently than the roster's own
+ * name (e.g. "Ninetales Alolan Form" for "Ninetales (Alola)") -- an exact/
+ * collapsed match (findPokemon) is tried first since it's cheap and exact,
+ * then a fuzzy best-match across the whole roster (findPokemonFuzzy) as a
+ * fallback, so a reworded-but-recognizable reading still lands on the
+ * right sprite instead of being left as unmatched raw text.
+ */
 function reconcilePokemon(raw) {
   const text = String(raw || '').trim();
   if (!text) return { value: '', matched: true };
-  const p = findPokemon(text);
+  const p = findPokemon(text) || findPokemonFuzzy(text);
   return { value: p ? p.name : text, matched: !!p };
 }
 
 function reconcileItem(raw) {
   const text = String(raw || '').trim();
   if (!text) return { value: '', matched: true };
-  const i = findItem(text);
+  const i = findItem(text) || findItemFuzzy(text);
   return { value: i ? i.name : text, matched: !!i };
 }
 
