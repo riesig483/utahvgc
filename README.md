@@ -67,7 +67,8 @@ isn't built here. Ask if you want that as a second graphic type.
 ## Pokémon & item sprites
 
 The roster is scoped to **Pokémon Champions** (not the full National Dex),
-scraped from two sources rather than bundled:
+originally scraped from two sources and now bundled locally in `assets/sprites/`
+rather than hot-linked:
 
 - Pokémon art: [Bulbagarden Archives' "Champions menu sprites"
   category](https://archives.bulbagarden.net/wiki/Category:Champions_menu_sprites) —
@@ -76,16 +77,32 @@ scraped from two sources rather than bundled:
   Combat)"). Each file's page has a `{{menu sprite|<dex#>|<name>|CP|<form>}}`
   template, which is what names every entry — not a guessed slug.
 - Item icons: [Pokébase's Pokémon Champions items
-  list](https://pokebase.app/pokemon-champions/items) — 148 items, hosted on
-  `i.pokebase.app`.
+  list](https://pokebase.app/pokemon-champions/items) — 148 items, originally
+  hosted on `i.pokebase.app`.
 
-`js/data/pokemon.js` and `js/data/items.js` are flat `{name, url}` lists —
-the exact sprite URL scraped for that entry, not a formula. `js/sprites.js`
-just looks up a typed name (case/spacing-insensitive, with a loose fallback
-for e.g. "Charizard Mega X" vs "Charizard (Mega X)") and returns its `url`.
-Both Pokémon and item boxes are fixed-size (`object-fit: contain`), so every
-Pokémon sprite is the same size as every other Pokémon sprite, and likewise
-for items, regardless of the source image's native dimensions.
+**Why local, not hot-linked.** Every render can ask for up to 24 Pokémon
+sprites at once (4 placements × 6 slots), and `archives.bulbagarden.net` is a
+MediaWiki wiki, not a CDN — it occasionally hiccupped under that kind of
+simultaneous-request burst with a transient reset/timeout, showing sprites as
+intermittently broken. All 507 files (~5.4MB total) were downloaded once and
+committed into `assets/sprites/pokemon/` and `assets/sprites/items/`, so the
+app now has zero runtime dependency on either third-party host — sprites load
+same-origin, exactly as reliably as the background/logos already did.
+
+`js/data/pokemon.js` and `js/data/items.js` are still flat `{name, url}`
+lists — `url` is now a local `assets/sprites/...` path instead of a remote
+one, same shape either way. `js/sprites.js` looks up a typed name
+(case/spacing-insensitive, with a loose fallback for e.g. "Charizard Mega X"
+vs "Charizard (Mega X)") and returns its `url`. Both Pokémon and item boxes
+are fixed-size (`object-fit: contain`), so every Pokémon sprite is the same
+size as every other Pokémon sprite, and likewise for items, regardless of the
+source image's native dimensions.
+
+Sprites still retry automatically on a failed load (`js/render.js`, up to
+twice with a short backoff, hidden rather than showing a broken-image flash
+while a retry is pending) and there's a manual **Retry** button in the
+warning banner — now mostly a safety net for a genuinely flaky local
+connection rather than something needed in the common case.
 
 **Mega Stones auto-fill.** Champions gives 75 Pokémon a Mega Evolution
 (including several that never had one in the mainline games, like Chesnaught
@@ -103,14 +120,13 @@ of a name. The app detects `http(s)://` input and uses it verbatim, no code
 changes needed. A red dashed box on a sprite in the preview means it failed
 to load — that's your cue to check the name/URL before exporting.
 
-**Network access note**: sprites are hot-linked from `archives.bulbagarden.net`
-and `i.pokebase.app`, and the Oswald font loads from `fonts.googleapis.com`/
+**Network access note**: the Oswald font loads from `fonts.googleapis.com`/
 `fonts.gstatic.com`, so if this app is ever run somewhere with restricted
 outbound network access (e.g. a locked-down Claude Code cloud environment),
-those domains — plus `pokebase.app` itself — need to be reachable for
-sprites/fonts to load and for `js/data/*.js` to be regenerated. Everything
-else (background, logos, icons) is bundled in `assets/` and needs no
-network access.
+that domain needs to be reachable for the font to load. Sprites no longer
+need any network access at all (see above) — `archives.bulbagarden.net`/
+`i.pokebase.app` are only needed if `js/data/*.js` and `assets/sprites/`
+ever need to be regenerated from a Champions roster update.
 
 ## Teamsheet photo scanning
 
@@ -160,8 +176,10 @@ css/style.css        All styling, including the 2000×1125 graphic itself (exact
                      positions/fonts/colors extracted from the template deck)
 assets/              Real brand assets extracted from the template deck (background,
                      org logo, contact icons, tournament-type logos, store logos)
-js/data/pokemon.js    Scraped Champions species+form list: {name, sprite url}
-js/data/items.js      Scraped Champions item list: {name, sprite url}
+assets/sprites/       All 507 Pokemon/item sprites, downloaded once and bundled
+                     locally (see "Pokémon & item sprites" above) -- not hot-linked
+js/data/pokemon.js    Scraped Champions species+form list: {name, local sprite path}
+js/data/items.js      Scraped Champions item list: {name, local sprite path}
 js/data/mega-stones.js Mega Pokemon → its Mega Stone item name
 js/sprites.js         Name → sprite URL lookup (+ direct-URL override, + Mega Stone lookup)
 js/catalog.js         Tournament-type/store lists + their default (bundled) logos
