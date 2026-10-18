@@ -18,8 +18,9 @@ Open `index.html` (locally or via GitHub Pages) and you get:
   persist in the browser) so every graphic you generate after that matches
   your exact template pixel-for-pixel.
 - **Teamsheet photo scanning** (optional) — attach a photo of a printed or
-  handwritten teamsheet to a placement and have Claude read its 6 Pokémon +
-  held items straight into the form, instead of typing them in by hand.
+  handwritten teamsheet to a placement and have Claude read the player's
+  name plus their 6 Pokémon + held items straight into the form, instead
+  of typing them in by hand.
 
 ## Matching the real template exactly
 
@@ -68,26 +69,34 @@ isn't built here. Ask if you want that as a second graphic type.
 
 The roster is scoped to **Pokémon Champions** (not the full National Dex),
 originally scraped from two sources and now bundled locally in `assets/sprites/`
-rather than hot-linked:
+rather than hot-linked. It tracks the game's current regulation — currently
+**Regulation M-C** (393 Pokémon/forms, 166 items; re-scraped and re-synced
+whenever a new regulation adds/removes roster entries):
 
 - Pokémon art: [Bulbagarden Archives' "Champions menu sprites"
   category](https://archives.bulbagarden.net/wiki/Category:Champions_menu_sprites) —
-  359 sprites covering 209 species, including every Mega/regional/etc. form
+  393 sprites covering 231 species, including every Mega/regional/etc. form
   the game gives its own sprite (e.g. "Charizard (Mega X)", "Tauros (Paldea
-  Combat)"). Each file's page has a `{{menu sprite|<dex#>|<name>|CP|<form>}}`
-  template, which is what names every entry — not a guessed slug.
+  Combat)"). Each file's page has a `{{menu sprite|<dex#>|<name>|<tag>|<form>}}`
+  template, which is what names every entry — not a guessed slug. (The wiki
+  renamed its own template tag from `CP` to `Champs` alongside the M-C
+  update; harmless, just means re-scraped filenames changed from
+  `Menu_CP_*` to `Menu_Champs_*`.)
 - Item icons: [Pokébase's Pokémon Champions items
-  list](https://pokebase.app/pokemon-champions/items) — 148 items, originally
-  hosted on `i.pokebase.app`.
+  list](https://pokebase.app/pokemon-champions/items) — 166 items. Pokébase
+  migrated its image CDN to `img.pokebase.app` alongside the M-C update, but
+  the older `i.pokebase.app/pokemon-champions/<id>.png` path (no size
+  suffix) still serves the same underlying images at full resolution for
+  both old and new items, so that's what's used here.
 
 **Why local, not hot-linked.** Every render can ask for up to 24 Pokémon
 sprites at once (4 placements × 6 slots), and `archives.bulbagarden.net` is a
 MediaWiki wiki, not a CDN — it occasionally hiccupped under that kind of
 simultaneous-request burst with a transient reset/timeout, showing sprites as
-intermittently broken. All 507 files (~5.4MB total) were downloaded once and
-committed into `assets/sprites/pokemon/` and `assets/sprites/items/`, so the
-app now has zero runtime dependency on either third-party host — sprites load
-same-origin, exactly as reliably as the background/logos already did.
+intermittently broken. All 559 files (~5.4MB total) are committed into
+`assets/sprites/pokemon/` and `assets/sprites/items/`, so the app has zero
+runtime dependency on either third-party host — sprites load same-origin,
+exactly as reliably as the background/logos already did.
 
 `js/data/pokemon.js` and `js/data/items.js` are still flat `{name, url}`
 lists — `url` is now a local `assets/sprites/...` path instead of a remote
@@ -104,9 +113,10 @@ while a retry is pending) and there's a manual **Retry** button in the
 warning banner — now mostly a safety net for a genuinely flaky local
 connection rather than something needed in the common case.
 
-**Mega Stones auto-fill.** Champions gives 75 Pokémon a Mega Evolution
+**Mega Stones auto-fill.** Champions gives 81 Pokémon a Mega Evolution
 (including several that never had one in the mainline games, like Chesnaught
-and Greninja), each with exactly one valid held item. Picking a Mega in the
+and Greninja, and a few newer "Mega Z" forms introduced in Regulation M-C),
+each with exactly one valid held item. Picking a Mega in the
 Pokémon box (e.g. "Charizard (Mega X)") automatically fills its item box
 with the matching stone ("Charizardite X"), overwriting whatever was there.
 `js/data/mega-stones.js` is a real {Pokémon name → stone name} map built by
@@ -142,15 +152,22 @@ Usage is billed to your own Anthropic account; a batch of four teamsheet
 photos runs a few cents.
 
 The request forces a `record_teamsheets` tool call so Claude returns
-structured `{pokemon, item, confidence}` slots rather than free text. Every
-returned name is then snapped onto this app's own scraped Champions roster
-via the same `findPokemon()`/`findItem()` lookup the manual text inputs use
-(`js/sprites.js`) — Mega Evolutions still auto-fill their Mega Stone the
-same as typing one in by hand. A slot gets highlighted for a manual
-double-check (`js/teamsheet.js`) whenever Claude itself flagged it
-`low`-confidence, or its reading didn't match a real roster entry — nothing
-is ever silently guessed at or auto-submitted; it only pre-fills the same
-fields you'd otherwise type into. See Anthropic's
+structured data rather than free text: a `trainerName` + confidence per
+sheet (read off a "Player"/"Trainer"/"Name" field on the sheet, written
+straight into that placement's Player name box), plus `{pokemon, item,
+confidence}` slots. Every returned Pokémon/item name is then snapped onto
+this app's own scraped Champions roster via `findPokemon()`/`findItem()` —
+with a fuzzy best-match fallback (`findPokemonFuzzy()`/`findItemFuzzy()`,
+word-order-independent, e.g. "Ninetales Alolan Form" still lands on
+"Ninetales (Alola)") for a reading that's reworded rather than exact — the
+same lookup the manual text inputs use (`js/sprites.js`). Mega Evolutions
+still auto-fill their Mega Stone the same as typing one in by hand, and vice
+versa (a base species + its matching stone read as two separate fields
+upgrades to the Mega form automatically). A field gets highlighted for a
+manual double-check (`js/teamsheet.js`) whenever Claude itself flagged it
+`low`-confidence, or a Pokémon/item reading didn't match a real roster entry
+even fuzzily — nothing is ever silently guessed at or auto-submitted; it
+only pre-fills the same fields you'd otherwise type into. See Anthropic's
 [vision docs](https://platform.claude.com/docs/en/build-with-claude/vision)
 for the accuracy caveats this is designed around (handwriting, low-quality
 or very small source images).

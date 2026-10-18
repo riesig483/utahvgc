@@ -31,7 +31,7 @@ function resetTeamsheetPhotos() {
 const TEAMSHEET_TOOL = {
   name: 'record_teamsheets',
   description:
-    'Record the Pokemon and held items read off one or more Pokemon Champions teamsheet photos. ' +
+    'Record the trainer name and the Pokemon/held items read off one or more Pokemon Champions teamsheet photos. ' +
     'Champions teams have up to 6 Pokemon each. There is no Tera type in Champions -- ignore any Tera type column/box entirely, it is not part of this data.',
   input_schema: {
     type: 'object',
@@ -42,6 +42,15 @@ const TEAMSHEET_TOOL = {
         items: {
           type: 'object',
           properties: {
+            trainerName: {
+              type: 'string',
+              description: "The player/trainer's name as written on the sheet (e.g. a \"Player\"/\"Trainer\"/\"Name\" field at the top). Empty string if not present or fully illegible.",
+            },
+            trainerNameConfidence: {
+              type: 'string',
+              enum: ['high', 'low'],
+              description: '"low" if the handwriting/print was unclear, partial, or guessed. Only meaningful when trainerName is non-empty.',
+            },
             slots: {
               type: 'array',
               description: 'One entry per Pokemon listed on the sheet (up to 6), in the order written.',
@@ -56,7 +65,7 @@ const TEAMSHEET_TOOL = {
               },
             },
           },
-          required: ['slots'],
+          required: ['trainerName', 'trainerNameConfidence', 'slots'],
         },
       },
     },
@@ -78,7 +87,7 @@ async function callClaudeTeamsheetScan(apiKey, entries) {
   });
   content.push({
     type: 'text',
-    text: `Read each of the ${entries.length} teamsheet photo(s) above and call record_teamsheets with one "sheets" entry per image, in the same order as the images.`,
+    text: `Read each of the ${entries.length} teamsheet photo(s) above and call record_teamsheets with one "sheets" entry per image, in the same order as the images. For each, read the trainer/player's name as well as their team.`,
   });
 
   const res = await fetch(CLAUDE_API_URL, {
@@ -135,15 +144,26 @@ function reconcileItem(raw) {
  * Writes one placement's scan results into `state` and its live form
  * inputs directly (rather than a full rebuildFormFromState()), so other
  * placements' not-yet-scanned photo attachments aren't wiped out.
- * Returns how many slots got flagged for a manual check.
+ * Returns how many fields (trainer name + team slots) got flagged for a
+ * manual check.
  */
-function applyTeamsheetResult(placeIdx, slots) {
+function applyTeamsheetResult(placeIdx, sheet) {
   const card = document.querySelectorAll('.place-form-card')[placeIdx];
   if (!card) return 0;
-  const slotNodes = card.querySelectorAll('.slot-form');
   let flagged = 0;
 
-  slots.slice(0, 6).forEach((slot, slotIdx) => {
+  const trainerName = String(sheet.trainerName || '').trim();
+  if (trainerName) {
+    const nameFlagged = sheet.trainerNameConfidence === 'low';
+    if (nameFlagged) flagged++;
+    state.places[placeIdx].name = trainerName;
+    const nameInput = card.querySelector('.p-name');
+    nameInput.value = trainerName;
+    nameInput.classList.toggle('slot-low-confidence', nameFlagged);
+  }
+
+  const slotNodes = card.querySelectorAll('.slot-form');
+  (sheet.slots || []).slice(0, 6).forEach((slot, slotIdx) => {
     const node = slotNodes[slotIdx];
     if (!node) return;
     const pField = reconcilePokemon(slot.pokemon);
@@ -224,7 +244,7 @@ async function scanTeamsheets(placeIndices) {
         if (statusEl) statusEl.textContent = "Couldn't read this photo — check it by hand.";
         return;
       }
-      const flagged = applyTeamsheetResult(entry.placeIdx, sheet.slots);
+      const flagged = applyTeamsheetResult(entry.placeIdx, sheet);
       totalFlagged += flagged;
       if (statusEl) {
         statusEl.textContent = flagged
